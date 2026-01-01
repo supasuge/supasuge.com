@@ -1,0 +1,36 @@
+.key-man.txt
+instance
+__pycache__
+.venv
+.claude
+data/
+*.tar.gz
+*.tar.xz
+
+# Database files
+instance/*
+instance
+migrations/*
+migrations
+instance/
+*.db
+*.db-journal
+*.sqlite*
+
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+.env.backup
+.env.old
+
+docs/*
+docs
+DEPLOYMENT_SUMMARY.md
+supasuge_com.egg-info/*
+supasuge_com.egg-info
+# Keep the example template (this should be tracked)
+!.env.example
+scripts/sign.sh
+# Backup files
+backups/*.sql.gz

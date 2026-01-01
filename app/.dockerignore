@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.git/
+.gitignore
+.vscode/
+.idea/
+node_modules/
+dist/
+build/
+.envrc
+.DS_Store
+.claude
+ADMIN.md
+docs/IMPLEMENTATION_STATUS.md

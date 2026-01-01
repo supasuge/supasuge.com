@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block content %}
+  <article class="article">
+    <h1>{{ article.title }}</h1>
+
+    <div class="meta">
+      {% if article.date %}<span>{{ article.date.date() }}</span>{% endif %}
+      {% for c in article.categories %}
+        <a href="{{ url_for('public.category_view', category=c|lower) }}">{{ c }}</a>
+      {% endfor %}
+      {% for t in article.tags %}
+        <a class="tag" href="{{ url_for('public.tag_view', tag=t|lower) }}">{{ t }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="article-body">
+      {{ article.html|safe }}
+    </div>
+  </article>
+{% endblock %}

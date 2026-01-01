@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Articles{% endblock %}
+
+{% block content %}
+  <h1>Articles</h1>
+
+  <ul class="list">
+    {% for a in articles %}
+      <li>
+        <a href="{{ url_for('article', slug=a.slug) }}">{{ a.title }}</a>
+
+        <div class="meta">
+          {% if a.categories %}
+            <span>
+              Category:
+              <a href="{{ url_for('public.category_view', category=a.categories[0].slug) }}">
+                {{ a.categories[0].name }}
+              </a>
+            </span>
+          {% endif %}
+
+          {% if a.tags %}
+            <span>Tags:
+              {% for t in a.tags %}
+                <a class="tag" href="{{ url_for('public.tag_view', tag=t.slug) }}">{{ t.name }}</a>
+              {% endfor %}
+            </span>
+          {% endif %}
+        </div>
+
+        {% if a.summary %}
+          <div class="muted">{{ a.summary }}</div>
+        {% endif %}
+      </li>
+    {% else %}
+      <li class="muted">No posts found. Either you have none, or your sync is broken.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

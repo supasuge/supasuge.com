@@ -1,0 +1,119 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<h1>Site Analytics (last {{ days }} days)</h1>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <h3>Total Views</h3>
+    <p class="stat-value">{{ summary.total_views }}</p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Unique Visitors</h3>
+    <p class="stat-value">{{ summary.unique_visitors }}</p>
+  </div>
+</div>
+
+<h2>Top Posts</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>Post</th><th>Views</th></tr>
+  </thead>
+  <tbody>
+    {% for title, count in summary.top_posts %}
+      <tr>
+        <td>{{ title }}</td>
+        <td>{{ count }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">No data.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Top Countries</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>Country</th><th>Views</th></tr>
+  </thead>
+  <tbody>
+    {% for country, count in summary.top_countries %}
+      <tr>
+        <td>{{ country }}</td>
+        <td>{{ count }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">No geo data.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Top Referrers</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>Referrer</th><th>Views</th></tr>
+  </thead>
+  <tbody>
+    {% for referrer, count in summary.top_referrers %}
+      <tr>
+        <td>{{ referrer }}</td>
+        <td>{{ count }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">No referrer data.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Daily Views Trend</h2>
+<div class="chart-container">
+  <canvas id="dailyViewsChart"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+if (typeof Chart !== 'undefined') {
+  const dailyData = {{ summary.daily_views | tojson | safe }};
+  const labels = dailyData.map(d => d[0]);
+  const counts = dailyData.map(d => d[1]);
+
+  new Chart(document.getElementById('dailyViewsChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Daily Views',
+        data: counts,
+        borderColor: '#7dd3fc',
+        backgroundColor: 'rgba(125, 211, 252, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#fff' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        },
+        x: {
+          ticks: { color: '#fff' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

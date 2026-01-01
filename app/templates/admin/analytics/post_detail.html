@@ -1,0 +1,92 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Analytics – {{ post.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ post.title }}</h1>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <h3>Total Views</h3>
+    <p class="stat-value">{{ stats.total_views }}</p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Unique Visitors</h3>
+    <p class="stat-value">{{ stats.unique_visitors }}</p>
+  </div>
+
+  <div class="stat-card">
+    <h3>Avg Time on Page</h3>
+    <p class="stat-value">
+      {{ stats.avg_time_on_page|round(1) if stats.avg_time_on_page else "—" }} s
+    </p>
+  </div>
+</div>
+
+<h2>Top Referrers</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>Referrer</th><th>Count</th></tr>
+  </thead>
+  <tbody>
+    {% for ref, count in stats.referrers %}
+      <tr>
+        <td>{{ ref }}</td>
+        <td>{{ count }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="2">No referrers.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Daily Views Trend</h2>
+<div class="chart-container">
+  <canvas id="postDailyChart"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+if (typeof Chart !== 'undefined') {
+  const dailyData = {{ stats.daily_views | tojson | safe }};
+  const labels = dailyData.map(d => d[0]);
+  const counts = dailyData.map(d => d[1]);
+
+  new Chart(document.getElementById('postDailyChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Daily Views',
+        data: counts,
+        borderColor: '#7dd3fc',
+        backgroundColor: 'rgba(125, 211, 252, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#fff' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        },
+        x: {
+          ticks: { color: '#fff' },
+          grid: { color: 'rgba(255,255,255,0.1)' }
+        }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

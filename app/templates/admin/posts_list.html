@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Posts - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Posts Management</h1>
+    <div class="actions">
+        <a href="{{ url_for('admin.post_new') }}" class="btn btn-primary">Upload New Post</a>
+        <form action="{{ url_for('admin.posts_sync') }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-secondary">Sync from Filesystem</button>
+        </form>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if posts %}
+                {% for post in posts %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('public.post_view', slug=post.slug) }}" target="_blank">
+                            {{ post.title }}
+                        </a>
+                    </td>
+                    <td>{{ post.category.name }}</td>
+                    <td>
+                        <span class="status-badge status-{{ 'published' if post.published else 'draft' }}">
+                            {{ 'Published' if post.published else 'Draft' }}
+                        </span>
+                    </td>
+                    <td>{{ post.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="actions-cell">
+                        <a href="{{ url_for('admin.post_edit', post_id=post.id) }}" class="btn-small btn-secondary">Edit</a>
+                        <form action="{{ url_for('admin.post_toggle_published', post_id=post.id) }}" method="post" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-small btn-secondary">
+                                {{ 'Unpublish' if post.published else 'Publish' }}
+                            </button>
+                        </form>
+                        <form action="{{ url_for('admin.post_delete', post_id=post.id) }}" method="post"
+                              style="display:inline;"
+                              onsubmit="return confirm('Delete this post? This will also delete the source markdown file.');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-small btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center; padding: 2rem;">
+                        No posts found. <a href="{{ url_for('admin.post_new') }}">Upload your first post</a>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+    margin: 0;
+}
+
+.admin-header .actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.status-published {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+.status-draft {
+    background: rgba(250, 204, 21, 0.2);
+    color: #fde047;
+    border: 1px solid rgba(250, 204, 21, 0.5);
+}
+
+.actions-cell {
+    white-space: nowrap;
+}
+
+.btn-small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+}
+
+.data-table-container {
+    overflow-x: auto;
+}
+</style>
+{% endblock %}

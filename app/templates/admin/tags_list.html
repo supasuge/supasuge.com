@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Tags{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Tags</h1>
+</div>
+
+<div class="form-container">
+  <form method="post" action="{{ url_for('admin.tag_create') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+      <label>New Tag</label>
+      <input type="text" name="name" placeholder="Tag name" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Tag</button>
+  </form>
+</div>
+
+<h2>Active Tags</h2>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Slug</th>
+      <th>Posts</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tag, count in tags_with_counts %}
+    <tr>
+      <td>
+        <form method="post" action="{{ url_for('admin.tag_edit', tag_id=tag.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="text" name="name" value="{{ tag.name }}" required>
+      </td>
+      <td><code>{{ tag.slug }}</code></td>
+      <td>{{ count }}</td>
+      <td>
+          <button class="btn btn-secondary btn-small">Save</button>
+        </form>
+
+        <form method="post"
+              action="{{ url_for('admin.tag_delete', tag_id=tag.id) }}"
+              style="display:inline;"
+              onsubmit="return confirm('Delete tag ' + {{ tag.name|tojson }} + '? This will remove it from {{ count }} post' + {{ ('s' if count != 1 else '')|tojson }} + '.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-danger btn-small">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="4" class="muted">No active tags found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if unused_tags %}
+<h2 style="margin-top: 3rem; color: rgba(250, 204, 21, 0.8);">Unused Tags</h2>
+<p class="muted" style="margin-bottom: 1rem;">These tags are not currently assigned to any posts.</p>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Slug</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tag in unused_tags %}
+    <tr style="opacity: 0.6;">
+      <td>{{ tag.name }}</td>
+      <td><code>{{ tag.slug }}</code></td>
+      <td>
+        <form method="post"
+              action="{{ url_for('admin.tag_delete', tag_id=tag.id) }}"
+              style="display:inline;"
+              onsubmit="return confirm('Delete unused tag ' + {{ tag.name|tojson }} + '?')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-danger btn-small">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<style>
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.form-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-small {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.muted {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+h2 {
+    color: #7dd3fc;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Categories · {{ site_name }}{% endblock %}
+{% block content %}
+  <h1>Categories</h1>
+  <ul class="list">
+    {% for c in categories %}
+      <li><a href="{{ url_for('public.category_view', category=c.slug) }}">{{ c.slug }}</a></li>
+    {% else %}
+      <li class="muted">No categories. Extremely peaceful.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

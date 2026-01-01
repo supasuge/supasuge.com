@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+
+<!--
+basic ass header + MathJac script instantiations
+-->
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <!-- Core styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+  <!-- Pygments -->
+  <style>
+    {{ pygments_css | safe }}
+  </style>
+  <link rel="icon" href="{{ url_for('static', filename='img/supasuge.jpg') }}">
+  <!-- 
+       MathJax v3 (Obsidian-compatible, docs-aligned)
+       https://docs.mathjax.org/en/latest/web/configuration.html
+   -->
+  <script>
+    window.MathJax = {
+      loader: {
+        load: ['input/tex', 'output/chtml']
+      },
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true,
+        processEnvironments: true,
+        tags: 'none'   
+      },
+      options: {
+        skipHtmlTags: [
+          'script',
+          'noscript',
+          'style',
+          'textarea',
+          'pre',
+          'code'
+        ],
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+    id="MathJax-script">
+  </script>
+</head>
+
+
+
+
+
+
+
+<body>
+  <div class="particle-layer-1"></div>
+  <div class="particle-layer-2"></div>
+  <div class="lattice-diagonal"></div>
+  <div class="orb-layer"></div>
+  <div class="noise-overlay"></div>
+  <div class="hexagonal-lattice"></div>
+  <div class="fibonacci-lattice"></div>
+  <div class="voronoi-cells"></div>
+  <div class="moire-interference"></div>
+  <div class="reciprocal-lattice"></div>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="{{ url_for('public.index') }}">
+    <img
+      src="{{ url_for('static', filename='img/supasuge.jpg') }}"
+      alt="supasuge avatar"
+      class="brand-avatar"
+      loading="eager"
+    >
+    <span>{{ site_name }}</span>
+    </a>
+
+      <nav class="nav">
+        <a href="{{ url_for('public.all_posts') }}">All</a>
+        <a href="{{ url_for('public.categories_index') }}">Categories</a>
+        <a href="{{ url_for('public.projects_index') }}">Projects</a>
+        <a href="{{ url_for('public.tags_index') }}">Tags</a>
+        <a href="{{ url_for('public.about') }}">About</a>
+        <a href="{{ url_for('public.contact') }}">Contact</a>
+    </div>
+  </header>
+
+
+
+
+
+
+
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+
+
+
+
+
+
+
+  <footer class="site-footer">
+    <div class="container muted">
+      <small>
+        © {{ site_year }} · Flask · MathJax v3 · Obsidian-friendly · All rights reserved supasuge ©
+      </small>
+    </div>
+  </footer>
+
+  <!-- Analytics tracking (privacy-first, respects DNT) -->
+  {% if config.ANALYTICS_ENABLED %}
+  <script src="{{ url_for('static', filename='js/analytics.js') }}" defer></script>
+  {% endif %}
+</body>
+</html>

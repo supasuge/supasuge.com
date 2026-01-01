@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Home · {{ site_name }}{% endblock %}
+{% block content %}
+  <div class="hero">
+    <h1>{{ site_name }}</h1>
+    <p class="muted">
+      This site serves as a collection of blog posts, technical notes, personal/professional project portfolio posts and write-ups centered around cybersecurity research/CTF and hands-on learning. I'm a cybersecurity professional focused on continuously improving my skills through experimentation, analysis, and real-world problem solving.
+    </p>
+    <p class="muted">
+      The goal of this blog is to document that process and share practical insights that may be useful to others navigating the field, whether through security research, CTF-style challenges, system hardening, or applied cryptography.
+    </p>
+    <p class="muted">
+      If you find any of the content helpful and would like to support the work, donations are greatly appreciated.
+    </p>
+  </div>
+
+  <h2>Recent</h2>
+  <ul class="list">
+    {% for p in recent %}
+      <li>
+        <a href="{{ url_for('public.post_view', slug=p.slug) }}">{{ p.title }}</a>
+        <span class="muted"> · <a href="{{ url_for('public.category_view', category=p.category.slug) }}">{{ p.category.slug }}</a></span>
+        {% if p.summary %}<div class="muted">{{ p.summary }}</div>{% endif %}
+      </li>
+    {% else %}
+      <li class="muted">No posts. You know what to do.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Categories</h2>
+  <ul class="list">
+    {% for c in categories %}
+      <li><a href="{{ url_for('public.category_view', category=c.slug) }}">{{ c.name }}</a></li>
+    {% else %}
+      <li class="muted">No categories yet. Put a file in <code>/content</code>.</li>
+    {% endfor %}
+  </ul>
+
+
+{% endblock %}

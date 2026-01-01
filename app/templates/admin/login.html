@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - supasuge.com</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <style>
+        /* keep your existing CSS block as-is (trimmed here for brevity in your repo if you want) */
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Admin Login</h1>
+            <p>Authenticate using SSH key signatures (challenge-response)</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="challenge-section">
+            <label class="challenge-label">Your Challenge</label>
+            <div class="challenge-box-wrapper">
+                <div class="challenge-box" id="challenge-box">{{ challenge }}</div>
+                <button class="copy-btn" onclick="copyChallenge()">Copy</button>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h2>How to Sign (OpenSSH)</h2>
+            <ol>
+                <li>Copy the challenge above.</li>
+                <li>Save it to a file (no newline):</li>
+            </ol>
+
+            <p><code>printf "%s" "{{ challenge }}" > challenge.txt</code></p>
+
+            <p><strong>Sign it with your SSH private key:</strong></p>
+            <p><code>ssh-keygen -Y sign -f ~/.ssh/id_ed25519 -n {{ ssh_namespace }} challenge.txt</code></p>
+
+            <p>This produces <code>challenge.txt.sig</code>. Print it:</p>
+            <p><code>cat challenge.txt.sig</code></p>
+
+            <ol start="3">
+                <li>Copy the entire signature block (BEGIN/END SSH SIGNATURE).</li>
+                <li>Paste it below and click Verify.</li>
+            </ol>
+
+            <div class="instructions-note">
+                <strong>Important:</strong>
+                The namespace must match: <code>{{ ssh_namespace }}</code>.
+            </div>
+        </div>
+
+        <form method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="challenge" value="{{ challenge }}">
+
+            <div class="form-section">
+                <label for="signed_message" class="form-label">SSH Signature</label>
+                <textarea name="signed_message" id="signed_message"
+                          placeholder="Paste your SSH signature here&#10;&#10;-----BEGIN SSH SIGNATURE-----&#10;...&#10;-----END SSH SIGNATURE-----"
+                          required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Verify & Login</button>
+        </form>
+    </div>
+
+    <script>
+        function copyChallenge() {
+            const text = "{{ challenge }}";
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

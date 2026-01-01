@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Dashboard{% endblock %} - supasuge.com</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/supasuge.jpg') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Complex layered background animation system -->
+    <div class="particle-layer-1"></div>
+    <div class="particle-layer-2"></div>
+    <div class="lattice-diagonal"></div>
+    <div class="orb-layer"></div>
+    <div class="noise-overlay"></div>
+
+    <header>
+        <nav class="admin-nav">
+            <div class="nav-brand">
+                <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('admin.posts_list') }}">Posts</a></li>
+                <li><a href="{{ url_for('admin.categories_list') }}">Categories</a></li>
+                <li><a href="{{ url_for('admin.tags_list') }}">Tags</a></li>
+                <li><a href="{{ url_for('admin.analytics_overview') }}">Analytics</a></li>
+                <li><a href="/" class="back-to-site-btn">← Back to Site</a></li>
+                <li>
+                    <form action="{{ url_for('admin.logout') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Admin Panel - supasuge.com</p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

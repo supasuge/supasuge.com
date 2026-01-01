@@ -1,0 +1,124 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Edit Post - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Edit Post</h1>
+    <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Back to Posts</a>
+</div>
+
+<div class="form-container">
+    <div class="post-info">
+        <h2>{{ post.title }}</h2>
+        <p class="meta">
+            <strong>Slug:</strong> {{ post.slug }}<br>
+            <strong>Category:</strong> {{ post.category.name }}<br>
+            <strong>Source:</strong> {{ post.source_path }}<br>
+            <strong>Created:</strong> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}<br>
+            <strong>Updated:</strong> {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}
+        </p>
+    </div>
+
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="published" value="true" {% if post.published %}checked{% endif %}>
+                Published
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>Tags</label>
+            <div class="tag-picker" data-selected-tags='{{ post.tags | map(attribute="slug") | list | tojson }}'></div>
+            <p class="help-text">Type to search existing tags or press Enter to create new ones.</p>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>Note:</strong> To edit the post content, summary, or title, edit the source markdown file at:
+            <code>{{ post.source_path }}</code> and then click "Sync from Filesystem" on the posts list page.
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="preview">
+        <h3>Post Preview</h3>
+        <div class="post-content">
+            {{ post.content_html | safe }}
+        </div>
+    </div>
+</div>
+
+<style>
+.form-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.post-info {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.post-info h2 {
+    margin-top: 0;
+    color: #7dd3fc;
+}
+
+.post-info .meta {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.8;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1.5rem 0;
+}
+
+.alert-info {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #93c5fd;
+}
+
+.alert code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+.preview {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(125, 211, 252, 0.3);
+}
+
+.preview h3 {
+    color: #7dd3fc;
+    margin-bottom: 1rem;
+}
+
+.post-content {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 8px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tag-picker.js') }}"></script>
+{% endblock %}

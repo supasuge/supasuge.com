@@ -1,0 +1,121 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Upload New Post - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Upload New Post</h1>
+    <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Back to Posts</a>
+</div>
+
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="markdown">Markdown File *</label>
+            <input type="file" name="markdown" id="markdown" accept=".md,.markdown" required>
+            <small>Accepted formats: .md, .markdown (Max 2MB)</small>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <select name="category" id="category" required>
+                {% for cat in categories %}
+                <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="published" value="true" checked>
+                Publish immediately
+            </label>
+        </div>
+
+        <h3>Optional Frontmatter Override</h3>
+        <p class="muted">Leave blank to use frontmatter from the markdown file</p>
+
+        <div class="form-group">
+            <label for="title">Title (optional)</label>
+            <input type="text" name="title" id="title" placeholder="Override frontmatter title">
+        </div>
+
+        <div class="form-group">
+            <label for="summary">Summary (optional)</label>
+            <textarea name="summary" id="summary" rows="3" placeholder="Override frontmatter summary"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="tags">Tags (optional)</label>
+            <input type="text" name="tags" id="tags" placeholder="tag1, tag2, tag3">
+            <small>Comma-separated list</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Upload & Sync</button>
+            <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #7dd3fc;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(125, 211, 252, 0.5);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.muted {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+h3 {
+    color: #7dd3fc;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

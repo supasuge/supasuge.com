@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ tag.slug }} · {{ site_name }}{% endblock %}
+{% block content %}
+  <h1>Tag: {{ tag.slug }}</h1>
+  <ul class="list">
+    {% for p in posts %}
+      <li>
+        <a href="{{ url_for('public.post_view', slug=p.slug) }}">{{ p.title }}</a>
+        <span class="muted"> · <a href="{{ url_for('public.category_view', category=p.category.slug) }}">{{ p.category.slug }}</a></span>
+      </li>
+    {% else %}
+      <li class="muted">No posts for this tag.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,58 @@
+[project]
+name = "supasuge-com"
+version = "0.1.0"
+description = "Personal portfolio and blog"
+requires-python = ">=3.12"
+
+dependencies = [
+  # Core Flask
+  "Flask==3.1.2",
+  "Flask-SQLAlchemy==3.1.1",
+  "SQLAlchemy==2.0.45",
+  "python-dotenv==1.2.1",
+  # Content processing
+  "python-frontmatter==1.1.0",
+  "markdown",
+  "bleach==6.3.0",
+  "Pygments==2.19.2",
+  # Security
+  "Werkzeug==3.1.4",
+  "Jinja2==3.1.6",
+  "click==8.3.1",
+  "itsdangerous==2.2.0",
+  "pyperclip>=1.11.0",
+  # Rate limiting
+  "Flask-Limiter>=3.8.0",
+  "redis>=5.2.0",
+  # Database & Migrations
+  "alembic==1.14.0",
+  "psycopg2-binary==2.9.10",
+  # Analytics
+  "geoip2==4.8.1",
+  "user-agents==2.2.0",
+  # File handling
+  "python-magic==0.4.27",
+  # Background tasks
+  "celery==5.4.0",
+  "flower==2.0.1",
+  # Production server
+  "gunicorn==23.0.0",
+  # Type checking
+  "mypy==1.13.0",
+  "types-bleach",
+  "types-Markdown",
+  "pymysql>=1.1.2",
+  "flask-wtf>=1.2.2",
+  "paramiko>=4.0.0",
+]
+
+[tool.uv]
+managed = true
+
+[tool.setuptools]
+py-modules = ["app", "models", "config", "content_indexer", "content_sync", "security", "wsgi"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["blueprints*", "auth*", "services*", "tasks*"]
+exclude = ["tests*", "migrations*", "static*", "templates*", "content*", "keys*", "nginx*", "public*", "instance*", "scripts*"]

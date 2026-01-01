@@ -1,0 +1,25 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Post Analytics{% endblock %}
+
+{% block content %}
+<h1>Post Analytics</h1>
+
+<table class="data-table">
+  <thead>
+    <tr><th>Post</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for post in posts %}
+      <tr>
+        <td>{{ post.title }}</td>
+        <td>
+          <a class="btn btn-secondary"
+             href="{{ url_for('admin.analytics_post_detail', post_id=post.id) }}">
+            View
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Projects · {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Projects</h1>
+  <p class="muted">A collection of things I've built and experimented with.</p>
+</div>
+
+<div class="project-grid">
+  {% for p in projects %}
+    <a class="project-card" href="{{ url_for('public.post_view', slug=p.slug) }}">
+      <h3>{{ p.title }}</h3>
+      {% if p.summary %}
+        <p class="muted">{{ p.summary }}</p>
+      {% endif %}
+      <span class="tag">View Project →</span>
+    </a>
+  {% else %}
+    <p class="muted">No projects yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Tags · {{ site_name }}{% endblock %}
+{% block content %}
+  <h1>Tags</h1>
+  {% if tags_with_counts %}
+    <div class="tags-grid">
+      {% for tag, count in tags_with_counts %}
+        <a href="{{ url_for('public.tag_view', tag=tag.slug) }}" class="tag-card">
+          <div class="tag-name">{{ tag.slug }}</div>
+          <div class="tag-count">{{ count }} post{{ 's' if count != 1 else '' }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">No tags. Extremely peaceful.</p>
+  {% endif %}
+{% endblock %}

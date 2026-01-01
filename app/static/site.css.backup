@@ -1,0 +1,962 @@
+/* -----------------------
+   Base + Variables
+------------------------ */
+:root {
+  --bg: #0b0d10;
+  --fg: #e7e7e7;
+  --muted: #a0a6b3;
+  --accent: #7dd3fc;
+  --border: #1f2430;
+  --card: rgba(15, 20, 27, 0.85);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* -----------------------
+   Complex Animated Background System
+------------------------ */
+
+/* Layer 1: Base morphing mesh gradient */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80vw 60vh at 20% 30%, rgba(0, 180, 255, 0.16), transparent 60%),
+    radial-gradient(ellipse 70vw 80vh at 80% 70%, rgba(147, 51, 234, 0.13), transparent 55%),
+    radial-gradient(circle 50vw at 50% 50%, rgba(236, 72, 153, 0.09), transparent 50%),
+    radial-gradient(ellipse 90vw 50vh at 60% 20%, rgba(34, 211, 238, 0.12), transparent 65%),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, transparent 50%, rgba(168, 85, 247, 0.07) 100%);
+  animation: mesh-morph 25s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate,
+             mesh-drift 40s ease-in-out infinite;
+  z-index: -5;
+  filter: blur(60px);
+}
+
+@keyframes mesh-morph {
+  0% {
+    opacity: 0.85;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.95;
+    transform: scale(1.08) rotate(2deg);
+  }
+  66% {
+    opacity: 0.9;
+    transform: scale(0.95) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05) rotate(1deg);
+  }
+}
+
+@keyframes mesh-drift {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%, 60% 20%, 0% 0%;
+  }
+  25% {
+    background-position: 30% 20%, 70% 80%, 60% 40%, 40% 30%, 10% 20%;
+  }
+  50% {
+    background-position: 50% 40%, 50% 60%, 40% 60%, 70% 50%, 20% 40%;
+  }
+  75% {
+    background-position: 20% 60%, 80% 40%, 70% 30%, 30% 70%, 30% 60%;
+  }
+}
+
+/* Layer 2: Animated lattice grid with intersection points */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 79px,
+      rgba(125, 211, 252, 0.11) 79px,
+      rgba(125, 211, 252, 0.11) 80px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 79px,
+      rgba(125, 211, 252, 0.11) 79px,
+      rgba(125, 211, 252, 0.11) 80px
+    );
+  animation: lattice-drift 45s linear infinite;
+  z-index: -4;
+  opacity: 0.7;
+}
+
+@keyframes lattice-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(80px, 80px);
+  }
+}
+
+/* Layer 3: Floating particle dots - creates depth */
+.particle-layer-1 {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(125, 211, 252, 0.20) 2px, transparent 2px),
+    radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.17) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 45% 60%, rgba(236, 72, 153, 0.14) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 70% 80%, rgba(34, 211, 238, 0.18) 2px, transparent 2px),
+    radial-gradient(circle at 25% 75%, rgba(168, 85, 247, 0.16) 1.8px, transparent 1.8px),
+    radial-gradient(circle at 90% 55%, rgba(59, 130, 246, 0.13) 2.2px, transparent 2.2px);
+  background-size: 200px 200px, 250px 250px, 180px 180px, 220px 220px, 190px 190px, 240px 240px;
+  animation: particles-float-1 30s ease-in-out infinite, particles-fade-1 8s ease-in-out infinite alternate;
+  z-index: -3;
+  pointer-events: none;
+}
+
+.particle-layer-2 {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 55% 15%, rgba(125, 211, 252, 0.17) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 20% 45%, rgba(236, 72, 153, 0.14) 2px, transparent 2px),
+    radial-gradient(circle at 75% 65%, rgba(147, 51, 234, 0.16) 1.8px, transparent 1.8px),
+    radial-gradient(circle at 40% 85%, rgba(34, 211, 238, 0.13) 2.3px, transparent 2.3px),
+    radial-gradient(circle at 92% 25%, rgba(168, 85, 247, 0.18) 1.6px, transparent 1.6px);
+  background-size: 280px 280px, 210px 210px, 260px 260px, 230px 230px, 270px 270px;
+  animation: particles-float-2 40s ease-in-out infinite reverse, particles-fade-2 10s ease-in-out infinite alternate;
+  z-index: -3;
+  pointer-events: none;
+}
+
+@keyframes particles-float-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.05);
+  }
+  50% {
+    transform: translate(-15px, -50px) scale(0.98);
+  }
+  75% {
+    transform: translate(30px, -20px) scale(1.02);
+  }
+}
+
+@keyframes particles-float-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    transform: translate(-25px, 40px) scale(1.03);
+  }
+  60% {
+    transform: translate(20px, 60px) scale(0.97);
+  }
+  90% {
+    transform: translate(-10px, 30px) scale(1.01);
+  }
+}
+
+@keyframes particles-fade-1 {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes particles-fade-2 {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Layer 4: Diagonal cross-hatch lattice with wave motion */
+.lattice-diagonal {
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px,
+      transparent 112px,
+      rgba(255, 0, 255, 0.06) 112px,
+      rgba(255, 0, 255, 0.06) 113px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 112px,
+      rgba(0, 255, 255, 0.06) 112px,
+      rgba(0, 255, 255, 0.06) 113px
+    );
+  animation: lattice-wave 35s cubic-bezier(0.4, 0.0, 0.6, 1) infinite;
+  z-index: -2;
+  pointer-events: none;
+}
+
+@keyframes lattice-wave {
+  0%, 100% {
+    transform: translate(0, 0) skewY(0deg);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translate(-56px, 56px) skewY(0.5deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-113px, 113px) skewY(0deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate(-56px, 56px) skewY(-0.5deg);
+    opacity: 0.6;
+  }
+}
+
+/* Layer 5: Pulsing orbs for depth and visual interest */
+.orb-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.orb-layer::before,
+.orb-layer::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  animation: orb-pulse 15s ease-in-out infinite;
+}
+
+.orb-layer::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(125, 211, 252, 0.20), transparent 70%);
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.orb-layer::after {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.17), transparent 70%);
+  bottom: 10%;
+  right: 15%;
+  animation-delay: 7.5s;
+}
+
+@keyframes orb-pulse {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.8);
+  }
+  15% {
+    opacity: 0.7;
+    transform: translate(30px, -20px) scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(60px, -40px) scale(1.1);
+  }
+  85% {
+    opacity: 0.6;
+    transform: translate(30px, -20px) scale(0.95);
+  }
+}
+
+/* Layer 6: Subtle noise texture overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: noise-shift 3s steps(4) infinite;
+}
+
+/* Layer 7: Hexagonal lattice (close-packed structure) */
+.hexagonal-lattice {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(125, 211, 252, 0.06) 2px, transparent 2px),
+    radial-gradient(circle at 50% 0%, rgba(147, 51, 234, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 25% 43.3%, rgba(34, 211, 238, 0.06) 2px, transparent 2px),
+    radial-gradient(circle at 75% 43.3%, rgba(168, 85, 247, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 0% 86.6%, rgba(236, 72, 153, 0.06) 2px, transparent 2px),
+    radial-gradient(circle at 50% 86.6%, rgba(59, 130, 246, 0.05) 2px, transparent 2px);
+  background-size: 100px 86.6px;
+  animation: hex-lattice-rotate 60s linear infinite, hex-breathe 12s ease-in-out infinite alternate;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+@keyframes hex-lattice-rotate {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes hex-breathe {
+  0%, 100% {
+    opacity: 0.5;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.2);
+  }
+}
+
+/* Layer 8: Fibonacci spiral lattice points */
+.fibonacci-lattice {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.fibonacci-lattice::before,
+.fibonacci-lattice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 61.8% 50%, rgba(147, 51, 234, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 38.2% 50%, rgba(236, 72, 153, 0.12) 2px, transparent 2px),
+    radial-gradient(circle at 50% 61.8%, rgba(34, 211, 238, 0.11) 1.8px, transparent 1.8px),
+    radial-gradient(circle at 50% 38.2%, rgba(168, 85, 247, 0.11) 1.8px, transparent 1.8px),
+    radial-gradient(circle at 61.8% 61.8%, rgba(59, 130, 246, 0.10) 2.2px, transparent 2.2px),
+    radial-gradient(circle at 38.2% 38.2%, rgba(125, 211, 252, 0.10) 2.2px, transparent 2.2px),
+    radial-gradient(circle at 76.4% 50%, rgba(147, 51, 234, 0.09) 1.6px, transparent 1.6px),
+    radial-gradient(circle at 23.6% 50%, rgba(236, 72, 153, 0.09) 1.6px, transparent 1.6px);
+  background-size: 377px 377px;
+  animation: fibonacci-spin 80s linear infinite;
+}
+
+.fibonacci-lattice::after {
+  animation: fibonacci-spin 100s linear infinite reverse;
+  opacity: 0.6;
+}
+
+@keyframes fibonacci-spin {
+  from {
+    transform: rotate(0deg) scale(1.2);
+  }
+  to {
+    transform: rotate(360deg) scale(1.2);
+  }
+}
+
+/* Layer 9: Voronoi-inspired gradient cells */
+.voronoi-cells {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 300px 400px at 15% 20%, rgba(125, 211, 252, 0.08), transparent 50%),
+    radial-gradient(ellipse 350px 300px at 85% 30%, rgba(147, 51, 234, 0.07), transparent 50%),
+    radial-gradient(ellipse 280px 380px at 45% 70%, rgba(236, 72, 153, 0.06), transparent 50%),
+    radial-gradient(ellipse 400px 320px at 70% 85%, rgba(34, 211, 238, 0.07), transparent 50%),
+    radial-gradient(ellipse 320px 360px at 25% 50%, rgba(168, 85, 247, 0.06), transparent 50%),
+    radial-gradient(ellipse 360px 280px at 90% 60%, rgba(59, 130, 246, 0.05), transparent 50%);
+  animation: voronoi-morph 50s ease-in-out infinite alternate;
+  z-index: -4;
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.85;
+}
+
+@keyframes voronoi-morph {
+  0%, 100% {
+    background-size: 100% 100%;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    background-size: 120% 110%;
+    transform: scale(1.05) rotate(1deg);
+  }
+  66% {
+    background-size: 110% 120%;
+    transform: scale(0.98) rotate(-1deg);
+  }
+}
+
+/* Layer 10: Lattice interference moiré pattern */
+.moire-interference {
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      30deg,
+      transparent 0px,
+      transparent 41px,
+      rgba(125, 211, 252, 0.04) 41px,
+      rgba(125, 211, 252, 0.04) 42px
+    ),
+    repeating-linear-gradient(
+      150deg,
+      transparent 0px,
+      transparent 41px,
+      rgba(147, 51, 234, 0.04) 41px,
+      rgba(147, 51, 234, 0.04) 42px
+    ),
+    repeating-linear-gradient(
+      -30deg,
+      transparent 0px,
+      transparent 41px,
+      rgba(236, 72, 153, 0.03) 41px,
+      rgba(236, 72, 153, 0.03) 42px
+    );
+  animation: moire-shift 70s linear infinite, moire-pulse 15s ease-in-out infinite alternate;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+@keyframes moire-shift {
+  from {
+    transform: rotate(0deg) scale(1.5);
+  }
+  to {
+    transform: rotate(360deg) scale(1.5);
+  }
+}
+
+@keyframes moire-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Layer 11: Reciprocal lattice points with quantum interference */
+.reciprocal-lattice {
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.12) 3px, transparent 3px),
+    radial-gradient(circle at 33.3% 33.3%, rgba(147, 51, 234, 0.10) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 66.7% 33.3%, rgba(236, 72, 153, 0.10) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 33.3% 66.7%, rgba(34, 211, 238, 0.10) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 66.7% 66.7%, rgba(168, 85, 247, 0.10) 2.5px, transparent 2.5px),
+    radial-gradient(circle at 16.7% 50%, rgba(59, 130, 246, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 83.3% 50%, rgba(125, 211, 252, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 50% 16.7%, rgba(147, 51, 234, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 50% 83.3%, rgba(236, 72, 153, 0.08) 2px, transparent 2px);
+  background-size: 144px 144px;
+  animation: reciprocal-oscillate 55s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+@keyframes reciprocal-oscillate {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(-24px, 24px) scale(1.08);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(-48px, 48px) scale(0.95);
+    opacity: 0.65;
+  }
+  75% {
+    transform: translate(-72px, 72px) scale(1.05);
+    opacity: 0.7;
+  }
+}
+
+@keyframes noise-shift {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2%, -2%);
+  }
+  50% {
+    transform: translate(-2%, 2%);
+  }
+  75% {
+    transform: translate(2%, 2%);
+  }
+}
+
+/* -----------------------
+   Layout
+------------------------ */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.65;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* -----------------------
+   Header
+------------------------ */
+.site-header {
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.brand:hover {
+  color: var(--accent);
+}
+
+.brand-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+}
+
+.nav a {
+  margin-left: 16px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--accent);
+}
+
+/* -----------------------
+   Articles
+------------------------ */
+.article {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px;
+}
+
+.article-body {
+  max-width: 75ch;
+}
+
+.article-body h1,
+.article-body h2,
+.article-body h3 {
+  margin-top: 2rem;
+}
+
+.article-body pre {
+  background: #0f141b;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.article-body code {
+  background: #0f141b;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+/* -----------------------
+   Lists
+------------------------ */
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* -----------------------
+   Tags
+------------------------ */
+.tag {
+  display: inline-block;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+}
+
+/* -----------------------
+   Footer
+------------------------ */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+}
+
+/* -----------------------
+   Links
+------------------------ */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* -----------------------
+   Error Pages
+------------------------ */
+.error-page {
+  text-align: center;
+  padding: 80px 24px;
+}
+
+.error-page h1 {
+  font-size: 6rem;
+  margin: 0;
+  color: var(--accent);
+}
+
+.error-page h2 {
+  font-size: 2rem;
+  margin: 16px 0;
+}
+
+.error-page p {
+  color: var(--muted);
+  margin: 16px 0;
+}
+
+/* -----------------------
+   Projects
+------------------------ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.project-card {
+  display: block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.hero {
+  margin-bottom: 48px;
+}
+
+.whoami {
+  background: #0f141b;
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.quick-links a {
+  margin-right: 16px;
+  color: var(--accent);
+}
+
+.login-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  border-radius: 8px;
+}
+
+.login-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.login-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #7dd3fc;
+}
+
+.login-header p {
+  margin: 0;
+  color: #a0a6b3;
+}
+
+.challenge-section {
+  margin: 2rem 0;
+}
+
+.challenge-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #7dd3fc;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.challenge-box-wrapper {
+  position: relative;
+}
+
+.challenge-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(125, 211, 252, 0.5);
+  padding: 1rem;
+  padding-right: 4rem;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #7dd3fc;
+  word-break: break-all;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(125, 211, 252, 0.2);
+  border: 1px solid #7dd3fc;
+  color: #7dd3fc;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 11px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background: rgba(125, 211, 252, 0.3);
+}
+
+.instructions {
+  margin: 2rem 0;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 4px;
+  padding: 1.5rem;
+}
+
+.instructions h2 {
+  margin-top: 0;
+  color: #7dd3fc;
+  font-size: 1.2rem;
+}
+
+.instructions ol {
+  padding-left: 1.5rem;
+  line-height: 1.8;
+}
+
+.instructions li {
+  margin-bottom: 0.5rem;
+}
+
+.instructions code {
+  background: rgba(125, 211, 252, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  color: #7dd3fc;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.instructions-note {
+  background: rgba(125, 211, 252, 0.1);
+  border-left: 3px solid #7dd3fc;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.instructions-note strong {
+  color: #7dd3fc;
+}
+
+.form-section {
+  margin: 2rem 0;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #7dd3fc;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(125, 211, 252, 0.5);
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  border-radius: 4px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.2);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: #7dd3fc;
+  color: #0b0d10;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.2s;
+}
+
+.submit-btn:hover {
+  background: #93ddff;
+  transform: translateY(-1px);
+}
+
+.flash {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.flash-error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+
+/* -----------------------
+   Mobile Responsiveness
+------------------------ */
+@media (max-width: 768px) {
+  .login-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .challenge-box {
+    font-size: 11px;
+    padding: 0.75rem;
+    padding-bottom: 3rem;
+    padding-right: 0.75rem;
+  }
+
+  .copy-btn {
+    position: static;
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  .challenge-box-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .instructions {
+    padding: 1rem;
+  }
+
+  .instructions code {
+    font-size: 11px;
+  }
+
+  textarea {
+    font-size: 12px;
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .challenge-box {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} · {{ site_name }}{% endblock %}
+{% block content %}
+  <article class="article" data-post-id="{{ post.id }}">
+
+    <h1>{{ post.title }}</h1>
+
+    <div class="meta">
+      <a href="{{ url_for('public.category_view', category=post.category.slug) }}">{{ post.category.slug }}</a>
+      {% if post.tags %}
+        <span class="muted"> · </span>
+        {% for t in post.tags %}
+          <a class="tag" href="{{ url_for('public.tag_view', tag=t.slug) }}">{{ t.slug }}</a>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="article-body">
+      {{ post.content_html|safe }}
+    </div>
+  </article>
+{% endblock %}

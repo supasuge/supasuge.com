@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ category.slug }} · {{ site_name }}{% endblock %}
+{% block content %}
+  <div class="hero">
+    <h1>Category: {{ category.slug }}</h1>
+    {% if category.description %}
+      <p class="muted">{{ category.description }}</p>
+    {% endif %}
+  </div>
+
+  {% if category.slug == 'projects' or category.slug == 'project' %}
+    {# Use hero cards for project categories #}
+    <div class="project-grid">
+      {% for p in posts %}
+        <a class="project-card" href="{{ url_for('public.post_view', slug=p.slug) }}">
+          <h3>{{ p.title }}</h3>
+          {% if p.summary %}
+            <p class="muted">{{ p.summary }}</p>
+          {% endif %}
+          <span class="tag">View Project →</span>
+        </a>
+      {% else %}
+        <p class="muted">No projects in this category yet.</p>
+      {% endfor %}
+    </div>
+  {% else %}
+    {# Use standard list for other categories #}
+    <ul class="list">
+      {% for p in posts %}
+        <li>
+          <a href="{{ url_for('public.post_view', slug=p.slug) }}">{{ p.title }}</a>
+          {% if p.summary %}<div class="muted">{{ p.summary }}</div>{% endif %}
+        </li>
+      {% else %}
+        <li class="muted">No posts in this category yet.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+Here’s a cleaned-up rewrite that keeps the dry humor and self-awareness, but removes the stuff that would make a lawyer, recruiter, or security team quietly close the tab. Same intent, fewer landmines.
+
+---
+
+# security.txt
+
+Contact: [epardo1742@proton.me](mailto:epardo1742@proton.me)
+Site: [https://supasuge.com](https://supasuge.com)
+
+---
+
+## Responsible Testing Policy
+
+Testing the application logic of this site is explicitly permitted, provided that any findings are responsibly disclosed to the contact email above.
+
+Please note: this email address may change once my custom domain email is fully configured. DNS remains one of those things that is simple until it isn’t.
+
+---
+
+## Scope
+
+### In Scope
+
+- Application logic
+- Markdown rendering and content processing
+- Authentication and authorization issues
+- Admin dashboard and analytics endpoints (e.g. `/admin/login`)
+
+### Out of Scope
+
+- The underlying server or host system
+- Network infrastructure
+- Third-party services or external APIs
+
+---
+
+## Rules of Engagement
+
+You are welcome to manually test both the site and its logic. That said:
+
+- Do not spam HTTP/S traffic
+- Do not run large automated scanners
+- Do not be disruptive
+
+Rate limiting is enforced via Flask-Limiter, and abusive behavior will result in IP bans via fail2ban or equivalent controls.
+If you rely on rotating proxies to hammer a static blog, that is not research. That is a lifestyle choice.
+
+If you want to test creatively and responsibly, great.
+If you want to spray tools and hope something sticks, this is not the place.
+
+---
+
+## Disclosure Expectations
+
+- Clear explanation of the issue
+- Reproducible steps
+- Impact assessment
+- Suggested remediation (if available)
+
+Obvious LLM-generated filler reports will not be reviewed. This is not personal; it is time management. The same standard applies to most professional triage teams.
+
+Automated “agentic AI” pentesting frameworks are explicitly blocked and not permitted.
+
+---
+
+## Rewards (or Lack Thereof)
+
+This is a personal project run by a one-person team. I cannot guarantee monetary rewards.
+
+That said:
+
+- You will have my genuine appreciation
+- Severe issues may result in something tangible, depending on feasibility
+- At minimum, you will have helped improve the security of a real system
+
+Bug bounty veterans already know the industry reality here. No illusions will be sold.
+
+---
+
+## Final Notes
+
+Be respectful. Be thoughtful. Be precise.
+
+If you find something interesting, I want to hear about it.
+If you break things for sport, expect consequences.
+
+Thanks for taking the time to look.

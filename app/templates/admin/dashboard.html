@@ -1,0 +1,18 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+  <h1>Admin Dashboard</h1>
+  <p class="muted">Localhost-only. Access via SSH tunnel.</p>
+
+  <h2>Top pages</h2>
+  <table class="data-table">
+    <thead><tr><th>Path</th><th>Views</th></tr></thead>
+    <tbody>
+      {% for path, n in top %}
+        <tr><td><code>{{ path }}</code></td><td>{{ n }}</td></tr>
+      {% else %}
+        <tr><td colspan="2" class="muted">No data yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

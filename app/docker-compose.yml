@@ -1,0 +1,195 @@
+services:
+  # ---------------------------------------------------------------------------
+  # MySQL Database
+  # ---------------------------------------------------------------------------
+  db:
+    image: mysql:8.0.36
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=256M
+      - --max-connections=100
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: blog
+      MYSQL_USER: blogapp
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # ---------------------------------------------------------------------------
+  # Redis (Rate Limiting & Caching)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7.2.5-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Flask/Gunicorn Web Application
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      SITE_NAME: ${SITE_NAME:-Evan Pardon's Portfolio}
+      SITE_URL: https://${DOMAIN}
+
+      SECRET_KEY: ${SECRET_KEY}
+      ANALYTICS_SALT: ${ANALYTICS_SALT}
+
+      DATABASE_URL: mysql+pymysql://blogapp:${MYSQL_PASSWORD}@db:3306/blog?charset=utf8mb4
+
+      ALLOWED_HOSTS: ${DOMAIN},www.${DOMAIN},localhost,127.0.0.1
+
+      BEHIND_PROXY: "1"
+      PROXY_FIX_X_FOR: "1"
+      PROXY_FIX_X_PROTO: "1"
+      PROXY_FIX_X_HOST: "1"
+
+      COOKIE_SECURE: "1"
+      COOKIE_SAMESITE: "Lax"
+      ENABLE_HSTS: "1"
+
+      RATELIMIT_STORAGE_URL: redis://redis:6379/0
+      RATELIMIT_DEFAULT: "300/hour"
+
+      CONTENT_DIR: /app/content/articles
+
+      # IMPORTANT: Do NOT auto-run migrations on every container start.
+      RUN_MIGRATIONS: "0"
+      RUN_CONTENT_SYNC: "1"
+
+      GUNICORN_WORKERS: "2"
+      GUNICORN_THREADS: "4"
+      LOG_LEVEL: "info"
+
+    volumes:
+      - ./content:/app/content:rw
+      - ./public:/app/public:rw
+
+      - ./static:/app/static:ro
+      - ./templates:/app/templates:ro
+      - ./keys:/app/keys:ro
+      - ./alembic.ini:/app/alembic.ini:ro
+      - ./migrations:/app/migrations:rw
+      - ./data:/app/data:ro
+
+    networks:
+      - appnet
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:mode=1777,size=64M
+
+  # ---------------------------------------------------------------------------
+  # One-shot migration runner (manual / CI)
+  # ---------------------------------------------------------------------------
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: mysql+pymysql://blogapp:${MYSQL_PASSWORD}@db:3306/blog?charset=utf8mb4
+      SECRET_KEY: ${SECRET_KEY}
+      ANALYTICS_SALT: ${ANALYTICS_SALT}
+    volumes:
+      - ./alembic.ini:/app/alembic.ini:ro
+      - ./migrations:/app/migrations:rw
+    networks:
+      - appnet
+    entrypoint: ["/usr/bin/tini", "--"]
+    command: ["sh", "-lc", "alembic -c /app/alembic.ini upgrade head"]
+    restart: "no"
+    profiles:
+      - ops
+
+  # ---------------------------------------------------------------------------
+  # Nginx Reverse Proxy
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.27.3-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+
+      - ./nginx/dhparam.pem:/etc/nginx/dhparam.pem:ro
+
+      - ./nginx/webroot:/var/www/certbot:ro
+
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-var:/var/lib/letsencrypt
+
+      - ./static:/var/www/static:ro
+      - ./public:/var/www/public:ro
+
+    networks:
+      - appnet
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Certbot (SSL Certificate Management)
+  # ---------------------------------------------------------------------------
+  certbot:
+    image: certbot/certbot:v2.11.0
+    volumes:
+      - ./nginx/webroot:/var/www/certbot:rw
+      - certbot-etc:/etc/letsencrypt:rw
+      - certbot-var:/var/lib/letsencrypt:rw
+    profiles:
+      - certbot
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  mysqldata:
+    name: supasuge_mysql_data
+  certbot-etc:
+    name: supasuge_certbot_etc
+  certbot-var:
+    name: supasuge_certbot_var
