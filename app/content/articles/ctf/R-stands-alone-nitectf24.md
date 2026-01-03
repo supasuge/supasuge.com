@@ -1,5 +1,5 @@
 ---
-title: 'NiteCTF Crypto Writeup: Factoring $r = a^3 + 16b^3$ via Number Fields'
+title: 'NiteCTF Crypto Writeup: R Stands Alone
 summary: NiteCTF24 "R Stands Alone"  crypto writeup showing how the RSA modulus with three primes falls by factoring $r = a^3 + 16b^3$ in a cubic number field, recovering $p$ and $q$ to decrypt the flag.
 tags:
 - nitectf24
@@ -20,13 +20,16 @@ This was the only challenge I solved during this event, mostly due to family and
 - Date: 12/15/2024
 
 ## Table of Contents
+- [Table of Contents](#table-of-contents)
 - [Challenge Source Code (Preliminary)](#challenge-source-code-preliminary)
 - [Challenge Overview](#challenge-overview)
 - [Vulnerability Background](#vulnerability-background)
-- [Step 2: Algebraic Derivation of $r = a^3 + 16b^3$](#step-2-algebraic-derivation-of-r)
+- [Step 2: Algebraic Derivation of $r$](#step-2-algebraic-derivation-of-r)
 - [Code Analysis](#code-analysis)
 - [Vulnerability](#vulnerability)
 - [The Norm Map](#the-norm-map)
+  - [Why this helps with factorization](#why-this-helps-with-factorization)
+  - [Recovery of the private key](#recovery-of-the-private-key)
 - [Solution Steps](#solution-steps)
 - [SageMath Solution Code](#sagemath-solution-code)
 - [Final Notes](#final-notes)

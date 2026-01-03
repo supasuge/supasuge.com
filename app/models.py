@@ -43,25 +43,19 @@ class Post(db.Model):
     __tablename__ = "posts"
 
     id = db.Column(db.Integer, primary_key=True)
-
     slug = db.Column(db.String(255), unique=True, nullable=False, index=True)
     title = db.Column(db.String(512), nullable=False, index=True)
     summary = db.Column(db.Text, default="")
-
     content_md = db.Column(db.Text, nullable=False)
     content_html = db.Column(db.Text, nullable=False)
-
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False, index=True)
     category = relationship("Category", back_populates="posts")
-
     source_path = db.Column(db.String(1024), unique=True, nullable=False, index=True)
     subpath = db.Column(db.String(1024), default="")
     content_sha256 = db.Column(db.String(64), nullable=False, index=True)
-
     published = db.Column(db.Boolean, default=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     tags = relationship("Tag", secondary=post_tags, back_populates="posts")
     pageviews = relationship("PageView", back_populates="post")
 
@@ -145,16 +139,13 @@ class AdminSession(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     session_token = db.Column(db.String(128), unique=True, nullable=False, index=True)
-
     # Keep DB schema compatible with earlier migration (column name is still gpg_fingerprint)
+    # should be SSH key fingerprint, but if it ain't broke don't fix it...
     key_fingerprint = db.Column("gpg_fingerprint", db.String(128), nullable=False)
-
     challenge = db.Column(db.Text)
-
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     expires_at = db.Column(db.DateTime, nullable=False, index=True)
     last_activity = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     ip_address = db.Column(db.String(45))
     user_agent = db.Column(db.String(512))
     revoked = db.Column(db.Boolean, default=False, index=True)

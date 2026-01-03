@@ -27,48 +27,9 @@ if [[ ! -f /app/app.py ]]; then
 fi
 
 wait_for_db() {
-  # Skip database wait if using SQLite
-  if [[ "${LOCAL_DEV:-0}" == "1" ]]; then
-    log_info "LOCAL_DEV mode: Using SQLite, skipping database connection wait"
-    return 0
-  fi
-
-  # Check if DATABASE_URL uses SQLite
-  if echo "${DATABASE_URL:-}" | grep -q "^sqlite"; then
-    log_info "SQLite database detected, skipping connection wait"
-    return 0
-  fi
-
-  # Skip wait if DATABASE_URL not set (will use SQLite fallback)
-  if [[ -z "${DATABASE_URL:-}" ]]; then
-    log_info "DATABASE_URL not set - will use SQLite fallback"
-    return 0
-  fi
-
-  local max_attempts=30
-  local attempt=1
-
-  log_info "Waiting for MySQL database to be ready..."
-
-  while [[ $attempt -le $max_attempts ]]; do
-    if python3 -c "
-from sqlalchemy import create_engine, text
-import os
-engine = create_engine(os.environ['DATABASE_URL'], pool_pre_ping=True)
-with engine.connect() as conn:
-    conn.execute(text('SELECT 1'))
-" >/dev/null 2>&1; then
-      log_success "Database is ready!"
-      return 0
-    fi
-
-    log_info "Attempt $attempt/$max_attempts - waiting for database..."
-    sleep 2
-    attempt=$((attempt + 1))
-  done
-
-  log_error "Database not ready after $max_attempts attempts"
-  return 1
+  # SQLite is file-based and doesn't require a connection wait
+  log_info "Using SQLite database - no connection wait needed"
+  return 0
 }
 
 run_migrations() {

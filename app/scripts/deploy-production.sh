@@ -26,7 +26,7 @@ echo ""
 # Step 1: Stop services
 log_info "Stopping running services..."
 if docker compose ps -q | grep -q .; then
-    docker compose down
+    docker compose down -v
     log_success "Services stopped"
 else
     log_info "No services running"

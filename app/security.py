@@ -6,6 +6,7 @@ from urllib.parse import quote
 from hashlib import sha256
 from base64 import b64decode, b64encode
 import os
+
 SLUG_RE = re.compile(r"[^a-z0-9\-]+")
 
 

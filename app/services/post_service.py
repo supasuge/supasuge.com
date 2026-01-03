@@ -18,6 +18,8 @@ def get_all_posts(published_only: bool = False) -> list[Post]:
     Returns:
         List of Post objects ordered by updated_at desc
     """
+    
+
     query = db.session.query(Post)
 
     if published_only:

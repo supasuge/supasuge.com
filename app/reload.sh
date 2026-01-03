@@ -1,3 +1,3 @@
 #!/bin/bash
-python ./scripts/sync.py || echo "failed"
-gunicorn --config gunicorn.conf.py "wsgi:app" || echo "gunicorn goofed"
+python ./scripts/sync.py || echo "failed"; exit 1
+gunicorn --config gunicorn.conf.py "wsgi:app" || echo "gunicorn goofed" exit 1

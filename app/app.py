@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from pathlib import Path
 import os
 from datetime import UTC, datetime
 from typing import Optional
@@ -24,6 +24,7 @@ def _truthy(v: Optional[str]) -> bool:
 
 
 def create_app(config: Config | None = None) -> Flask:
+   
     if config is None:
         cfg = get_config()
     else:
@@ -32,7 +33,7 @@ def create_app(config: Config | None = None) -> Flask:
     app = Flask(__name__)
 
     sqlalchemy_engine_options = get_engine_options(cfg.DATABASE_TYPE)
-
+    (instance_path := Path(app.instance_path)).mkdir(parents=True, exist_ok=True)
     # Flask-Limiter expects *_URI, but your env uses *_URL.
     ratelimit_storage_uri = cfg.RATELIMIT_STORAGE_URL
 
@@ -89,7 +90,7 @@ def create_app(config: Config | None = None) -> Flask:
         CELERY_BROKER_URL=cfg.CELERY_BROKER_URL,
         CELERY_RESULT_BACKEND=cfg.CELERY_RESULT_BACKEND,
     )
-
+    
     public_limiter.init_app(app)
 
     allowed = {h.strip().lower() for h in (cfg.ALLOWED_HOSTS or []) if h.strip()}
@@ -147,5 +148,5 @@ if __name__ == "__main__":
     app.run(
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8000")),
-        debug=_truthy(os.getenv("FLASK_DEBUG", "0")),
+        debug=_truthy(os.getenv("FLASK_DEBUG", "1")),
     )

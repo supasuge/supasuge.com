@@ -24,9 +24,8 @@ dependencies = [
   # Rate limiting
   "Flask-Limiter>=3.8.0",
   "redis>=5.2.0",
-  # Database & Migrations
+  # Database & Migrations (SQLite - built into Python)
   "alembic==1.14.0",
-  "psycopg2-binary==2.9.10",
   # Analytics
   "geoip2==4.8.1",
   "user-agents==2.2.0",
@@ -41,7 +40,6 @@ dependencies = [
   "mypy==1.13.0",
   "types-bleach",
   "types-Markdown",
-  "pymysql>=1.1.2",
   "flask-wtf>=1.2.2",
   "paramiko>=4.0.0",
 ]

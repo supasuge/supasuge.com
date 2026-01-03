@@ -47,8 +47,7 @@ def _load_admin_key() -> paramiko.Ed25519Key | None:
             print('not a file....?')
             return None
 
-        key = paramiko.Ed25519Key(filename=str(PRIVATE_KEY_PATH))
-        print(key)
+        key = paramiko.Ed25519Key.(filename=str(PRIVATE_KEY_PATH))
         if key.get_name() != EXPECTED_KEY_TYPE:
             print('not expected')
             return None

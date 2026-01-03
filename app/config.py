@@ -57,6 +57,72 @@ def _validate_secret(name: str, value: str, min_length: int = 32) -> str:
         "password",
         "12345",
     }
+    WEAK_DEFAULTS.update({
+        "123456",
+        "1234567",
+        "12345678",
+        "123456789",
+        "1234567890",
+        "qwerty",
+        "qwerty123",
+        "qwertyuiop",
+        "password1",
+        "password123",
+        "passw0rd",
+        "p@ssw0rd",
+        "admin",
+        "administrator",
+        "root",
+        "toor",
+        "guest",
+        "user",
+        "test",
+        "testing",
+        "unittest",
+        "dev",
+        "development",
+        "local",
+        "localdev",
+        "local-dev",
+        "localhost",
+        "docker",
+        "dockercompose",
+        "docker-compose",
+        "postgres",
+        "postgresql",
+        "mysql",
+        "sqlite",
+        "secretkey",
+        "api-key",
+        "apikey",
+        "key",
+        "token",
+        "jwt",
+        "jwt-secret",
+        "default",
+        "defaultpass",
+        "default-password",
+        "default123",
+        "foobar",
+        "foo",
+        "bar",
+        "foobar123",
+        "changemeplease",
+        "please-change-me",
+        "please_change_me",
+        "pleasechangeme",
+        "iloveyou",
+        "letmein",
+        "welcome",
+        "abc123",
+        "abcd1234",
+        "pass",
+        "passwd",
+        "1234",
+        "0000",
+        "1111",
+        "12345-67890",
+    })
 
     value = _strip_quotes(value)
     value_lower = value.lower()
@@ -94,17 +160,14 @@ def _require_validated_secret(name: str, min_length: int = 32) -> str:
 
 def _get_database_url() -> tuple[str, str]:
     """
-    Get database URL with fallback support.
+    Get SQLite database URL.
 
     Returns:
         Tuple of (database_uri, database_type)
     """
     from database import get_database_uri
 
-    # In production, require explicit DATABASE_URL
-    # In development, allow fallback to SQLite
-    force_sqlite = os.getenv("LOCAL_DEV", "0") == "1"
-    return get_database_uri(force_sqlite=force_sqlite)
+    return get_database_uri()
 
 
 @dataclass(frozen=True)
@@ -117,8 +180,8 @@ class Config:
     """
     
     # Debug/Development flags
-    DEBUG: bool = False
-    DEVELOPMENT: bool = False
+    DEBUG: bool = False if os.getenv("LOCAL_DEV", "0") != "1" else True
+    DEVELOPMENT: bool = False if os.getenv("LOCAL_DEV", "0") != "1" else True
     CSRF_ENABLED: bool = True
 
     # Site identity
@@ -128,6 +191,7 @@ class Config:
     # Secrets (validated at import time)
     SECRET_KEY: str = _require_validated_secret("SECRET_KEY", min_length=48)
     ANALYTICS_SALT: str = _require_validated_secret("ANALYTICS_SALT", min_length=32)
+    
 
     # Content directories
     CONTENT_DIR: str = os.getenv("CONTENT_DIR", str(BASE_DIR / "content" / "articles"))
@@ -214,17 +278,6 @@ class Config:
     CELERY_RESULT_BACKEND: str = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/1")
 
 
-def _get_development_database_url() -> tuple[str, str]:
-    """
-    Get database URL for development (force SQLite).
-
-    Returns:
-        Tuple of (database_uri, database_type)
-    """
-    from database import get_database_uri
-    return get_database_uri(force_sqlite=True)
-
-
 @dataclass(frozen=True)
 class DevelopmentConfig(Config):
     """
@@ -232,19 +285,14 @@ class DevelopmentConfig(Config):
 
     Differences from base Config:
     - DEBUG mode enabled
-    - Uses SQLite database (no MySQL required)
     - Disables cookie security for local testing
     - Disables HSTS
     - Allows weak secrets for convenience
+    - Uses in-memory rate limiting (no Redis required)
     """
 
     DEBUG: bool = True
     DEVELOPMENT: bool = True
-
-    # Database: Force SQLite in development
-    _db_uri, _db_type = _get_development_database_url()
-    SQLALCHEMY_DATABASE_URI: str = _db_uri
-    DATABASE_TYPE: str = _db_type
 
     # Security: Relaxed for local development
     COOKIE_SECURE: bool = False

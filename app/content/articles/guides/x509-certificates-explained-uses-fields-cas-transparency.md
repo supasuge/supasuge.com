@@ -16,9 +16,13 @@ slug: x509-certificates-explained-uses-fields-cas-transparency
 X.509 is the standard format for public key certificates. This post distills the essentials: the common uses of X.509 certificates, the core fields you’ll see when you inspect one in your browser, and how Certificate Authorities and Certificate Transparency fit into the ecosystem. The goal is to make the terminology and structure concrete so you can quickly orient yourself when reviewing a cert or validating trust decisions.
 
 ## Table of Contents
+- [Table of Contents](#table-of-contents)
 - [What is an X.509 Certificate Used For?](#what-is-an-x509-certificate-used-for)
 - [Inside an X.509 Certificate](#inside-an-x509-certificate)
 - [Certificate Authority](#certificate-authority)
+    - [Certificate Transparency](#certificate-transparency)
+  - [Why CT exists](#why-ct-exists)
+- [crt.sh: A Public CT Log Search Engine](#crtsh-a-public-ct-log-search-engine)
 
 ## What is an X.509 Certificate Used For?
 - Email Security

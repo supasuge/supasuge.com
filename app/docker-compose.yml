@@ -1,32 +1,5 @@
 services:
   # ---------------------------------------------------------------------------
-  # MySQL Database
-  # ---------------------------------------------------------------------------
-  db:
-    image: mysql:8.0.36
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --innodb-buffer-pool-size=256M
-      - --max-connections=100
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: blog
-      MYSQL_USER: blogapp
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    volumes:
-      - mysqldata:/var/lib/mysql
-    networks:
-      - appnet
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 60s
-
-  # ---------------------------------------------------------------------------
   # Redis (Rate Limiting & Caching)
   # ---------------------------------------------------------------------------
   redis:
@@ -50,8 +23,6 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     env_file:
@@ -63,7 +34,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ANALYTICS_SALT: ${ANALYTICS_SALT}
 
-      DATABASE_URL: mysql+pymysql://blogapp:${MYSQL_PASSWORD}@db:3306/blog?charset=utf8mb4
+      DATABASE_URL: sqlite:////app/instance/blog.db
 
       ALLOWED_HOSTS: ${DOMAIN},www.${DOMAIN},localhost,127.0.0.1
 
@@ -92,13 +63,13 @@ services:
     volumes:
       - ./content:/app/content:rw
       - ./public:/app/public:rw
+      - sqlitedata:/app/instance:rw
 
       - ./static:/app/static:ro
       - ./templates:/app/templates:ro
       - ./keys:/app/keys:ro
       - ./alembic.ini:/app/alembic.ini:ro
       - ./migrations:/app/migrations:rw
-      - ./data:/app/data:ro
 
     networks:
       - appnet
@@ -109,33 +80,6 @@ services:
       - ALL
     tmpfs:
       - /tmp:mode=1777,size=64M
-
-  # ---------------------------------------------------------------------------
-  # One-shot migration runner (manual / CI)
-  # ---------------------------------------------------------------------------
-  migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: mysql+pymysql://blogapp:${MYSQL_PASSWORD}@db:3306/blog?charset=utf8mb4
-      SECRET_KEY: ${SECRET_KEY}
-      ANALYTICS_SALT: ${ANALYTICS_SALT}
-    volumes:
-      - ./alembic.ini:/app/alembic.ini:ro
-      - ./migrations:/app/migrations:rw
-    networks:
-      - appnet
-    entrypoint: ["/usr/bin/tini", "--"]
-    command: ["sh", "-lc", "alembic -c /app/alembic.ini upgrade head"]
-    restart: "no"
-    profiles:
-      - ops
 
   # ---------------------------------------------------------------------------
   # Nginx Reverse Proxy
@@ -187,8 +131,8 @@ networks:
     driver: bridge
 
 volumes:
-  mysqldata:
-    name: supasuge_mysql_data
+  sqlitedata:
+    name: supasuge_sqlite_data
   certbot-etc:
     name: supasuge_certbot_etc
   certbot-var:

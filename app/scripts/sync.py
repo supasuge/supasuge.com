@@ -5,12 +5,12 @@ import secrets
 from pathlib import Path
 
 from sqlalchemy.exc import OperationalError
-
+from dotenv import load_dotenv
 from app import create_app
 from config import Config
 from content_sync import sync_content
 from models import db
-
+load_dotenv()
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
@@ -23,13 +23,6 @@ def _ensure_min_env() -> None:
 
     if not os.getenv("ANALYTICS_SALT"):
         os.environ["ANALYTICS_SALT"] = secrets.token_hex(24)
-
-    if not os.getenv("DATABASE_URL"):
-        raise RuntimeError(
-            "DATABASE_URL is not set.\n"
-            "Example (docker): mysql+pymysql://blogapp:<pass>@db:3306/blog?charset=utf8mb4\n"
-            "Example (host):   mysql+pymysql://blogapp:<pass>@127.0.0.1:3306/blog?charset=utf8mb4\n"
-        )
 
 
 def main() -> None:

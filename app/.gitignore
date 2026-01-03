@@ -34,3 +34,9 @@ supasuge_com.egg-info
 scripts/sign.sh
 # Backup files
 backups/*.sql.gz
+CLAUDE.md
+DEPLOYMENT_FIX.md
+DEPLOYMENT.md
+PRODUCTION_READY.md
+../instance
+../tests

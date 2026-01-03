@@ -18,7 +18,7 @@ tags:
 - shared-object
 - reverse-shell
 - ctf
-published: true
+published: false
 date: '2025-12-31'
 slug: linux-privesc-permissions-sudo-cron-suid
 ---

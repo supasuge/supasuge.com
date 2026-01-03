@@ -13,13 +13,10 @@ Werkzeug==3.0.3
 Jinja2==3.1.4
 
 # -----------------------------------------------------------------------------
-# Database
+# Database (SQLite - built into Python)
 # -----------------------------------------------------------------------------
 Flask-SQLAlchemy==3.1.1
 SQLAlchemy==2.0.31
-PyMySQL==1.1.1
-# Required for MySQL 8.0 caching_sha2_password authentication
-cryptography==42.0.8
 
 # -----------------------------------------------------------------------------
 # Database Migrations
