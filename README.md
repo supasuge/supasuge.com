@@ -1,6 +1,11 @@
-# vps.com
+# supasuge.com
 
-A minimal, secure Flask blog serving Markdown posts with production-ready deployment.
+[www.supasuge.com/](https://supasuge.com/)
+
+A minimal, modular, and secure Flask static site generator style blog serving Markdown posts with production-ready deployment built in.
+
+**NOTE**
+> *Incomplete CMS Engine + Theme API*
 
 ## Features
 
