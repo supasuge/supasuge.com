@@ -1,6 +1,6 @@
-/* -----------------------
+/* 
    Base + Variables
------------------------- */
+ */
 :root {
   --bg: #0b0d10;
   --fg: #e8eaed;
@@ -45,9 +45,9 @@ h3:hover .headerlink {
   opacity: 0.7;
 }
 
-/* -----------------------
+/* 
    Canvas Background
------------------------- */
+ */
 #bg-lattice {
   position: fixed;
   inset: 0;
@@ -65,9 +65,9 @@ main,
   z-index: 1;
 }
 
-/* -----------------------
+/* 
    Layout
------------------------- */
+ */
 body {
   margin: 0;
   background: var(--bg);
@@ -81,9 +81,9 @@ body {
   padding: 24px;
 }
 
-/* -----------------------
+/* 
    Header
------------------------- */
+ */
 .site-header {
   backdrop-filter: blur(12px);
   background: linear-gradient(
@@ -151,9 +151,9 @@ body {
   transform-origin: left;
 }
 
-/* -----------------------
+/* 
    Articles
------------------------- */
+ */
 .article {
   background: rgba(8, 11, 16, 0.95);
   border: 1px solid var(--border);
@@ -273,9 +273,9 @@ body {
   font-size: 0.8rem;
 }
 
-/* -----------------------
+/* 
    Legal Pages
------------------------- */
+ */
 .legal-doc {
   max-width: 860px;
 }
@@ -313,9 +313,9 @@ body {
   border-radius: 6px;
 }
 
-/* -----------------------
+/* 
    Lists
------------------------- */
+ */
 .list {
   list-style: none;
   padding: 0;
@@ -348,9 +348,9 @@ body {
   line-height: 1.55;
 }
 
-/* -----------------------
+/* 
    Tags
------------------------- */
+ */
 .tag {
   display: inline-block;
   background: #0f172a;
@@ -455,9 +455,9 @@ body {
   }
 }
 
-/* -----------------------
+/* 
    Footer
------------------------- */
+ */
 .site-footer {
   border-top: 1px solid var(--border);
   margin-top: 64px;
@@ -499,9 +499,9 @@ body {
   text-decoration: underline;
 }
 
-/* -----------------------
+/* 
    Links
------------------------- */
+ */
 a {
   color: var(--accent);
   text-decoration: none;
@@ -515,9 +515,9 @@ a:hover {
   color: var(--muted);
 }
 
-/* -----------------------
+/* 
    Error Pages
------------------------- */
+ */
 .error-page {
   text-align: center;
   padding: 80px 24px;
@@ -539,9 +539,9 @@ a:hover {
   margin: 16px 0;
 }
 
-/* -----------------------
+/* 
    Projects / Hero Cards
------------------------- */
+ */
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -917,9 +917,9 @@ textarea:focus {
   color: var(--accent);
 }
 
-/* -----------------------
+/* 
    Mailing List
------------------------- */
+ */
 .mailing-list {
   width: 100%;
   max-width: 480px;
@@ -990,9 +990,9 @@ textarea:focus {
   transform: translateY(-1px);
 }
 
-/* -----------------------
+/* 
    Mobile Responsiveness
------------------------- */
+ */
 @media (max-width: 768px) {
   .project-grid {
     grid-template-columns: 1fr;
