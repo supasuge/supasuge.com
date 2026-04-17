@@ -8,11 +8,11 @@ slug: hash-vegas
 ---
 
 # Hash Vegas Writeup (Crypto)
----
-**Category:** Crypto  
-**Difficulty:** Hard  
-**Flag:** `nite{...}`
----
+
+- **Category:** Crypto  
+- **Difficulty:** Hard  
+- **Flag:** `nite{...}`
+
 
 ## Overview
 

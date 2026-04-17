@@ -1,234 +1,207 @@
-"""File upload validation and handling for markdown content."""
+"""Markdown upload service — validates and inserts directly into the database.
+
+No files are persisted to disk. The database is the single source of truth.
+"""
 
 from __future__ import annotations
 
+import logging
 import os
-import re
+from pathlib import Path
 from typing import Optional, Tuple
+
+from flask import current_app
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
-from flask import current_app
+
+from content_indexer import markdown_to_safe_html, sha256_text, parse_markdown_string
+from content_sync import (
+    create_post,
+    get_or_create_category,
+    get_or_create_tag,
+    unique_slug,
+)
+from models import Post, db
+from security import slugify
+from services.markdown_ingest import prepare_markdown_for_storage, source_name_to_title
+
+logger = logging.getLogger(__name__)
 
 
 def validate_markdown_upload(file: FileStorage) -> Tuple[bool, Optional[str]]:
-    """
-    Validate an uploaded markdown file for security and content.
+    """Validate an uploaded markdown file (extension, filename length, UTF-8).
 
     Args:
-        file: The uploaded file from request.files
+        file: Werkzeug FileStorage object from the request.
 
     Returns:
-        Tuple of (is_valid: bool, error_message: Optional[str])
-
-    Validation checks:
-        - File is not None/empty
-        - Filename has allowed extension (.md, .markdown)
-        - File size within MAX_UPLOAD_SIZE
-        - Content is valid UTF-8
-        - No malicious content (scripts, javascript:)
-
-    Example:
-        >>> file = request.files['markdown']
-        >>> valid, error = validate_markdown_upload(file)
-        >>> if not valid:
-        ...     flash(error, 'error')
+        (is_valid, error_message_or_None)
     """
-    # Check file exists
     if not file or not file.filename:
         return False, "No file uploaded"
 
-    # Check filename
     filename = secure_filename(file.filename)
     if not filename:
         return False, "Invalid filename"
 
-    # Check extension
+    if len(filename) > 255:
+        return False, "Filename too long (max 255 characters)"
+
     allowed_extensions = current_app.config.get("ALLOWED_EXTENSIONS", {".md", ".markdown"})
     ext = os.path.splitext(filename)[1].lower()
     if ext not in allowed_extensions:
         return False, f"Invalid file type. Allowed: {', '.join(allowed_extensions)}"
 
-    # Read file content
+    # Sniff first bytes to reject binary files
+    head = file.read(512)
+    file.seek(0)
     try:
-        file.seek(0)
-        content = file.read()
-        file.seek(0)  # Reset for later reading
-    except Exception as e:
-        return False, f"Failed to read file: {str(e)}"
-
-    # Check size
-    max_size = current_app.config.get("MAX_UPLOAD_SIZE", 2097152)  # 2MB default
-    if len(content) > max_size:
-        size_mb = max_size / 1024 / 1024
-        return False, f"File too large. Maximum size: {size_mb}MB"
-
-    # Validate UTF-8
-    try:
-        content_str = content.decode("utf-8")
-    except UnicodeDecodeError:
-        return False, "File must be UTF-8 encoded"
-
-    # Check for malicious content
-    dangerous_patterns = [
-        r'<script[^>]*>',  # Script tags
-        r'javascript:',     # Javascript protocol
-        r'on\w+\s*=',      # Event handlers (onclick, onload, etc.)
-        r'<iframe[^>]*>',  # Iframes
-    ]
-
-    for pattern in dangerous_patterns:
-        if re.search(pattern, content_str, re.IGNORECASE):
-            return False, "File contains potentially malicious content"
+        head.decode("utf-8")
+    except (UnicodeDecodeError, ValueError):
+        return False, "File does not appear to be valid UTF-8 text"
 
     return True, None
 
 
-def save_uploaded_markdown(
+def upload_markdown_to_db(
     file: FileStorage,
-    category: str,
-    frontmatter: Optional[dict] = None,
-) -> Tuple[bool, str]:
-    """
-    Save an uploaded markdown file to the content directory.
+    category_slug: str,
+    frontmatter_overrides: Optional[dict] = None,
+) -> Tuple[bool, str, Optional[int]]:
+    """Upload a markdown file directly into the database.
+
+    1. Validates the upload
+    2. Reads file content as UTF-8
+    3. Parses frontmatter + body
+    4. Inserts/updates the Post in the database
 
     Args:
-        file: The uploaded file from request.files
-        category: Category slug for the post
-        frontmatter: Optional frontmatter metadata to prepend
+        file: Werkzeug FileStorage from the upload form.
+        category_slug: Target category slug.
+        frontmatter_overrides: Optional dict to override parsed frontmatter fields.
 
     Returns:
-        Tuple of (success: bool, file_path_or_error: str)
-
-    File naming:
-        - Uses secure_filename() for safety
-        - Removes special characters
-        - Falls back to timestamp if filename invalid
-
-    Storage location:
-        - Saved to: content/articles/<category>/<filename>.md
-        - Creates category directory if needed
-
-    Example:
-        >>> file = request.files['markdown']
-        >>> success, path = save_uploaded_markdown(file, "linux")
-        >>> if success:
-        ...     print(f"Saved to: {path}")
+        (success, message, post_id_or_None)
     """
-    from datetime import datetime
-
-    # Validate first
     valid, error = validate_markdown_upload(file)
     if not valid:
-        return False, error
-
-    # Secure filename
-    filename = secure_filename(file.filename)
-    if not filename:
-        # Fallback to timestamp
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        filename = f"post_{timestamp}.md"
-
-    # Ensure .md extension
-    if not filename.endswith(('.md', '.markdown')):
-        filename += '.md'
-
-    # Build target path
-    content_dir = current_app.config.get("CONTENT_DIR", "content/articles")
-    category_dir = os.path.join(content_dir, category)
-
-    # Create category directory if needed
-    os.makedirs(category_dir, exist_ok=True)
-
-    target_path = os.path.join(category_dir, filename)
-
-    # SECURITY: Validate path containment (prevent traversal attacks)
-    abs_content_dir = os.path.abspath(content_dir)
-    abs_target_path = os.path.abspath(target_path)
-
-    # Ensure directory separator to prevent prefix matching bypass
-    if not abs_content_dir.endswith(os.sep):
-        abs_content_dir += os.sep
-
-    if not abs_target_path.startswith(abs_content_dir):
-        return False, "Invalid file path (security violation - path traversal attempt)"
-
-    # Check if file exists
-    if os.path.exists(target_path):
-        return False, f"File already exists: {filename}"
+        return False, error, None
 
     try:
-        # Read content
-        content = file.read().decode("utf-8")
+        raw = file.read().decode("utf-8")
+    except UnicodeDecodeError:
+        return False, "File is not valid UTF-8", None
 
-        # Prepend frontmatter if provided
-        if frontmatter:
-            fm_lines = ["---"]
-            for key, value in frontmatter.items():
-                if isinstance(value, list):
-                    fm_lines.append(f"{key}:")
-                    for item in value:
-                        fm_lines.append(f"  - {item}")
-                else:
-                    fm_lines.append(f"{key}: {value}")
-            fm_lines.append("---\n")
-            content = "\n".join(fm_lines) + content
-
-        # Write file
-        with open(target_path, "w", encoding="utf-8") as f:
-            f.write(content)
-
-        current_app.logger.info(f"Saved markdown file: {target_path}")
-        return True, target_path
-
-    except Exception as e:
-        current_app.logger.error(f"Failed to save markdown file: {e}")
-        return False, f"Failed to save file: {str(e)}"
-
-
-def delete_markdown_file(file_path: str) -> Tuple[bool, str]:
-    """
-    Delete a markdown file from the content directory.
-
-    Args:
-        file_path: Path to the file to delete
-
-    Returns:
-        Tuple of (success: bool, message: str)
-
-    Security:
-        - Validates file is within content directory (no path traversal)
-        - Only deletes .md/.markdown files
-        - Logs all deletions
-
-    Example:
-        >>> success, msg = delete_markdown_file("content/articles/linux/test.md")
-        >>> if success:
-        ...     print("File deleted")
-    """
-    # Security: ensure file is in content directory
-    content_dir = current_app.config.get("CONTENT_DIR", "content/articles")
-    abs_content_dir = os.path.abspath(content_dir)
-    abs_file_path = os.path.abspath(file_path)
-
-    # Ensure directory separator to prevent prefix matching bypass
-    if not abs_content_dir.endswith(os.sep):
-        abs_content_dir += os.sep
-
-    if not abs_file_path.startswith(abs_content_dir):
-        return False, "Invalid file path (security violation)"
-
-    # Ensure it's a markdown file
-    if not abs_file_path.endswith(('.md', '.markdown')):
-        return False, "Can only delete markdown files"
-
-    # Check if file exists
-    if not os.path.exists(abs_file_path):
-        return False, "File not found"
+    raw = prepare_markdown_for_storage(raw)
+    default_title = source_name_to_title(file.filename)
 
     try:
-        os.remove(abs_file_path)
-        current_app.logger.info(f"Deleted markdown file: {abs_file_path}")
-        return True, "File deleted successfully"
+        parsed = parse_markdown_string(
+            raw,
+            default_category=category_slug,
+            default_title=default_title,
+        )
     except Exception as e:
-        current_app.logger.error(f"Failed to delete file: {e}")
-        return False, f"Failed to delete file: {str(e)}"
+        return False, f"Failed to parse markdown: {e}", None
+
+    title = parsed.title
+    summary = parsed.summary
+    tags = list(parsed.tags)
+    published = parsed.published
+    content_md = parsed.content_md
+    content_html = parsed.content_html
+    content_hash = parsed.content_sha256
+    slug = parsed.slug
+    upload_name = secure_filename(file.filename or "") or "post.md"
+    upload_source = f"upload://{category_slug}/{upload_name}"
+
+    if frontmatter_overrides:
+        title = frontmatter_overrides.get("title", title)
+        summary = frontmatter_overrides.get("summary", summary)
+        published = frontmatter_overrides.get("published", published)
+        slug = slugify(frontmatter_overrides.get("slug", slug))
+        if "tags" in frontmatter_overrides:
+            tags = [slugify(t) for t in frontmatter_overrides["tags"] if t]
+
+    try:
+        # Check for existing post with same slug
+        existing = db.session.query(Post).filter_by(slug=slug).one_or_none()
+        if existing:
+            existing.title = title
+            existing.summary = summary
+            existing.content_md = content_md
+            existing.content_html = content_html
+            existing.content_sha256 = content_hash
+            existing.published = published
+            existing.source_path = upload_source
+            cat = get_or_create_category(db.session, category_slug)
+            existing.category = cat
+
+            existing.tags.clear()
+            for tslug in tags:
+                tslug = slugify(tslug)
+                if tslug:
+                    tag, _ = get_or_create_tag(db.session, tslug)
+                    existing.tags.append(tag)
+
+            db.session.commit()
+            msg = f"Post updated: '{title}' (slug={existing.slug})"
+            current_app.logger.info(msg)
+            return True, msg, existing.id
+        else:
+            post = create_post(
+                db.session,
+                title=title,
+                content_md=content_md,
+                category_slug=category_slug,
+                summary=summary,
+                tags=tags,
+                published=published,
+                slug=slug,
+                source_path=upload_source,
+            )
+            db.session.commit()
+            msg = f"Post created: '{title}' (slug={post.slug})"
+            current_app.logger.info(msg)
+            return True, msg, post.id
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error("Failed to upload markdown to DB: %s", e)
+        return False, f"Database error: {str(e)}", None
+
+
+def save_uploaded_markdown(file: FileStorage, category_slug: str) -> Tuple[bool, str]:
+    """Backward-compatible wrapper around DB-only uploads."""
+    success, msg, _ = upload_markdown_to_db(file, category_slug)
+    return success, msg
+
+
+def delete_markdown_file(path: str) -> Tuple[bool, str]:
+    """Delete a markdown file inside CONTENT_DIR, or noop for virtual uploads."""
+    if not path:
+        return False, "No path provided"
+
+    if path.startswith("upload://"):
+        return True, "Virtual upload source removed"
+
+    ext = Path(path).suffix.lower()
+    if ext not in {".md", ".markdown"}:
+        return False, "Security error: only markdown files can be removed"
+
+    content_dir = current_app.config.get("CONTENT_DIR")
+    if content_dir:
+        allowed_root = Path(content_dir).resolve()
+        target = Path(path).resolve()
+        if allowed_root not in target.parents and target != allowed_root:
+            return False, "Security error: path outside content directory"
+    else:
+        target = Path(path).resolve()
+
+    if target.exists():
+        try:
+            target.unlink()
+        except OSError as exc:
+            return False, f"Failed to delete file: {exc}"
+
+    return True, "Source markdown removed"

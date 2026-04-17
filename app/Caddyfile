@@ -1,0 +1,46 @@
+{
+	email epardo1742@proton.me
+	log {
+		output stdout
+		level INFO
+	}
+}
+
+supasuge.com, www.supasuge.com {
+	# Compress responses
+	encode zstd gzip
+
+	# Static files with long cache (CSS/JS/images change via new deploys)
+	handle /static/* {
+		header Cache-Control "public, max-age=2592000, immutable"
+		reverse_proxy web:8000
+	}
+
+	# Favicon/robots/security.txt
+	handle /robots.txt {
+		header Cache-Control "public, max-age=86400"
+		reverse_proxy web:8000
+	}
+	handle /security.txt {
+		header Cache-Control "public, max-age=86400"
+		reverse_proxy web:8000
+	}
+
+	# Health check (no logging)
+	handle /health {
+		reverse_proxy web:8000
+	}
+
+	# All other requests
+	reverse_proxy web:8000
+
+	# Request size limit (matches Flask MAX_UPLOAD_SIZE)
+	request_body {
+		max_size 4MB
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

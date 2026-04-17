@@ -86,6 +86,7 @@ slug: gpg-cheatsheet
 ### Generate a New Key Pair
 
 - Creates a new public/private key pair.
+
 ```bash
 gpg --gen-key
 ```
@@ -93,6 +94,7 @@ gpg --gen-key
 ### List Keys
 
 - Lists all keys in your public keyring.
+
 ```bash
 gpg --list-keys
 ```
@@ -100,6 +102,7 @@ gpg --list-keys
 ### Export a Public Key
 
 - Exports a public key to a file.
+
 ```bash
 gpg --export -a "User Name" > public.key
 ```
@@ -107,6 +110,7 @@ gpg --export -a "User Name" > public.key
 ### Import a Public Key
 
 - Imports a public key from a file.
+
 ```bash
 gpg --import public.key
 ```
@@ -114,6 +118,7 @@ gpg --import public.key
 ### Export a Private Key
 
 - Exports your private key.
+
 ```bash
 gpg --export-secret-keys -a "User Name" > private.key
 ```
@@ -121,6 +126,7 @@ gpg --export-secret-keys -a "User Name" > private.key
 ### Delete a Public Key
 
 - Removes a public key from your keyring.
+
 ```bash
 gpg --delete-key "User Name"
 ```
@@ -128,6 +134,7 @@ gpg --delete-key "User Name"
 ### Delete a Private Key
 
 - Removes a private key from your keyring.
+
 ```bash
 gpg --delete-secret-key "User Name"
 ```
@@ -137,6 +144,7 @@ gpg --delete-secret-key "User Name"
 ### Encrypt a File
 
 - Encrypts a file for a specific recipient.
+
 ```bash
 gpg --encrypt --recipient "User Name" file.txt
 ```
@@ -144,6 +152,7 @@ gpg --encrypt --recipient "User Name" file.txt
 ### Decrypt a File
 
 - Decrypts a file.
+
 ```bash
 gpg --decrypt file.txt.gpg
 ```
@@ -151,6 +160,7 @@ gpg --decrypt file.txt.gpg
 ### Symmetric Encryption
 
 - Encrypts a file using a passphrase.
+
 ```bash
 gpg --symmetric file.txt
 ```
@@ -158,6 +168,7 @@ gpg --symmetric file.txt
 ### Decrypt Symmetrically Encrypted File
 
 - Decrypts a file encrypted with symmetric encryption.
+
 ```bash
 gpg --decrypt file.txt.gpg
 ```
@@ -167,6 +178,7 @@ gpg --decrypt file.txt.gpg
 ### Sign a File
 
 - Digitally signs a file.
+
 ```bash
 gpg --sign file.txt
 ```
@@ -174,6 +186,7 @@ gpg --sign file.txt
 ### Verify a Signed File
 
 - Verifies a signed file.
+
 ```bash
 gpg --verify file.txt.gpg
 ```
@@ -181,6 +194,7 @@ gpg --verify file.txt.gpg
 ### Create a Detached Signature
 
 - Creates a detached signature for a file.
+
 ```bash
 gpg --detach-sign file.txt
 ```
@@ -188,6 +202,7 @@ gpg --detach-sign file.txt
 ### Verify a Detached Signature
 
 - Verifies a detached signature.
+
 ```bash
 gpg --verify file.txt.sig file.txt
 ```
@@ -197,6 +212,7 @@ gpg --verify file.txt.sig file.txt
 ### Edit a Key
 
 - Accesses the key editing menu to manage key trust, add subkeys, etc.
+
 ```bash
 gpg --edit-key "User Name"
 ```
@@ -204,6 +220,7 @@ gpg --edit-key "User Name"
 ### List Secret Keys
 
 - Lists all your secret keys.
+
 ```bash
 gpg --list-secret-keys
 ```
@@ -211,6 +228,7 @@ gpg --list-secret-keys
 ### Add a Subkey
 
 - Adds a subkey to your keyring.
+
 ```bash
 gpg --edit-key "User Name" addkey
 ```
@@ -218,6 +236,7 @@ gpg --edit-key "User Name" addkey
 ### Create a Revocation Certificate
 
 - Generates a revocation certificate for a key.
+
 ```bash
 gpg --gen-revoke "User Name"
 ```
@@ -225,6 +244,7 @@ gpg --gen-revoke "User Name"
 ### Change a Passphrase
 
 - Changes the passphrase for your private key.
+
 ```bash
 gpg --edit-key "User Name" passwd
 ```
@@ -232,11 +252,13 @@ gpg --edit-key "User Name" passwd
 ### Backup and Restore Keys
 
 - Backup:
+
 ```bash
 gpg --export-secret-keys "User Name" > my-private-backup.gpg
 ```
 
 - Restore:
+
 ```bash
 gpg --import my-private-backup.gpg
 ```
@@ -244,6 +266,7 @@ gpg --import my-private-backup.gpg
 ### Using GPG with an Agent
 
 - Configures GPG to use `gpg-agent` for key management and passphrase caching.
+
 ```bash
 gpg-agent --daemon
 gpg --use-agent
@@ -256,6 +279,7 @@ gpg --use-agent
 ### Refresh Public Keys from a Keyserver
 
 - Updates your public keys with the latest versions from a keyserver.
+
 ```bash
 gpg --refresh-keys
 ```
@@ -263,6 +287,7 @@ gpg --refresh-keys
 ### Send a Key to a Keyserver
 
 - Publishes your public key to a keyserver.
+
 ```bash
 gpg --send-keys --keyserver [keyserver address] [keyID]
 ```
@@ -270,6 +295,7 @@ gpg --send-keys --keyserver [keyserver address] [keyID]
 ### Receive a Key from a Keyserver
 
 - Fetches a public key from a keyserver using the key ID.
+
 ```bash
 gpg --recv-keys --keyserver [keyserver address] [keyID]
 ```
@@ -277,6 +303,7 @@ gpg --recv-keys --keyserver [keyserver address] [keyID]
 ### Set Trust Level for a Key
 
 - Manually sets the trust level of a public key.
+
 ```bash
 gpg --edit-key [keyID] trust
 ```
@@ -284,6 +311,7 @@ gpg --edit-key [keyID] trust
 ### Add a Photo ID to Your Key
 
 - Attaches a photo ID to your GnuPG key.
+
 ```bash
 gpg --edit-key [keyID] addphoto
 ```
@@ -291,6 +319,7 @@ gpg --edit-key [keyID] addphoto
 ### Export Owner Trust Values
 
 - Exports the owner trust values of your keys.
+
 ```bash
 gpg --export-ownertrust > ownertrust.txt
 ```
@@ -298,6 +327,7 @@ gpg --export-ownertrust > ownertrust.txt
 ### Import Owner Trust Values
 
 - Imports owner trust values from a file.
+
 ```bash
 gpg --import-ownertrust ownertrust.txt
 ```
@@ -307,6 +337,7 @@ gpg --import-ownertrust ownertrust.txt
 ### Encrypt for Multiple Recipients
 
 - Encrypts a file for multiple recipients.
+
 ```bash
 gpg --encrypt --recipient [User Name 1] --recipient [User Name 2] file.txt
 ```
@@ -314,6 +345,7 @@ gpg --encrypt --recipient [User Name 1] --recipient [User Name 2] file.txt
 ### Encrypt with ASCII Armor
 
 - Encrypts data in ASCII format, useful for text-based communication.
+
 ```bash
 gpg --armor --encrypt --recipient "User Name" file.txt
 ```
@@ -321,6 +353,7 @@ gpg --armor --encrypt --recipient "User Name" file.txt
 ### Decrypt to Standard Output
 
 - Decrypts a file and outputs the content to standard output.
+
 ```bash
 gpg --decrypt --output - file.txt.gpg
 ```
@@ -330,6 +363,7 @@ gpg --decrypt --output - file.txt.gpg
 ### Batch Key Generation
 
 - Generates a key pair without interactive prompts (useful for scripting).
+
 ```bash
 gpg --batch --gen-key key-script.txt
 ```
@@ -342,8 +376,9 @@ gpg --batch --gen-key key-script.txt
 ```bash
 gpg --batch --trust-model always --encrypt --recipient "User Name" file.txt
 ```
+  
+**Decryption:**
 
-  - **Decryption:**
 ```bash
 gpg --batch --decrypt file.txt.gpg
 ```
@@ -353,6 +388,7 @@ gpg --batch --decrypt file.txt.gpg
 ### Passphrase File for Batch Processing
 
 - Uses a passphrase from a file for batch operations.
+
 ```bash
 gpg --batch --passphrase-file mypassphrase.txt --decrypt file.txt.gpg
 ```
@@ -360,6 +396,7 @@ gpg --batch --passphrase-file mypassphrase.txt --decrypt file.txt.gpg
 ### Cache Passphrase with gpg-agent
 
 - Caches the passphrase using `gpg-agent` to avoid repeated prompts.
+
 ```bash
 gpg-agent --daemon
 gpg --use-agent --decrypt file.txt.gpg
@@ -370,6 +407,7 @@ gpg --use-agent --decrypt file.txt.gpg
 ### Clearsign a Document
 
 - Creates a clearsigned document, useful for signing text files like emails.
+
 ```bash
 gpg --clearsign document.txt
 ```
@@ -377,6 +415,7 @@ gpg --clearsign document.txt
 ### Detached Signature with Timestamp
 
 - Creates a detached signature with a timestamp.
+
 ```bash
 gpg --detach-sign --timestamp document.txt
 ```
@@ -384,6 +423,7 @@ gpg --detach-sign --timestamp document.txt
 ### Sign and Encrypt in One Step
 
 - Digitally signs and then encrypts a document.
+
 ```bash
 gpg --sign --encrypt --recipient "User Name" document.txt
 ```
@@ -393,6 +433,7 @@ gpg --sign --encrypt --recipient "User Name" document.txt
 ### Print GPG Configuration
 
 - Prints the GnuPG configuration file.
+
 ```bash
 gpg --version
 ```
@@ -400,6 +441,7 @@ gpg --version
 ### Verify without Importing Key
 
 - Verifies a signature without importing the signer's key to your keyring.
+
 ```bash
 gpg --verify --no-default-keyring --keyring /dev/null document.txt.sig
 ```
@@ -407,6 +449,7 @@ gpg --verify --no-default-keyring --keyring /dev/null document.txt.sig
 ### Use an Alternate Configuration File
 
 - Specifies an alternate `gpg.conf` file.
+
 ```bash
 gpg --options /path/to/alternate/gpg.conf
 ```
@@ -414,6 +457,7 @@ gpg --options /path/to/alternate/gpg.conf
 ### List GPG Components and Versions
 
 - Lists GnuPG components and their versions.
+
 ```bash
 gpg --version
 ```
@@ -425,6 +469,7 @@ gpg --version
 ### Generate Non-RSA Key Pair
 
 - GnuPG supports several algorithms like DSA, Elgamal, ECDSA, ECDH, and EdDSA. You can specify the algorithm while generating a key.
+
 ```bash
 gpg --full-gen-key
 ```
@@ -434,6 +479,7 @@ During the process, you'll be prompted to choose the type of key. Here, you can 
 ### Generate ECC Key Pair
 
 - Specifically, to generate an ECC key pair, use:
+
 ```bash
 gpg --full-generate-key
 ```
@@ -443,6 +489,7 @@ Then choose `(9) ECC and ECC` and follow the prompts.
 ### Display Key Algorithm
 
 - To check the algorithm used by a particular key:
+
 ```bash
 gpg --list-keys --with-keygrip [User Name or Key ID]
 ```
@@ -452,6 +499,7 @@ gpg --list-keys --with-keygrip [User Name or Key ID]
 ### Changing Key Preferences
 
 - Modify cipher, hash, and compression preferences for your key.
+
 ```bash
 gpg --edit-key [keyID] setpref
 ```
@@ -460,11 +508,13 @@ gpg --edit-key [keyID] setpref
 
 - GnuPG allows exporting and importing of individual subkeys.
   - **Export Subkey:**
+
 ```bash
 gpg --export-secret-subkeys [keyID!] > subkey.gpg
 ```
   
   - **Import Subkey:**
+
 ```bash
 gpg --import subkey.gpg
 ```
@@ -494,6 +544,7 @@ gpg --cipher-algo [cipher] --symmetric file.txt
 ```bash
 gpg --batch --generate-key mygpg.conf
 ```
+
 The `mygpg.conf` file contains all the required parameters for key generation.
 
 ## Special Usage Scenarios
@@ -506,11 +557,13 @@ The `mygpg.conf` file contains all the required parameters for key generation.
 gpg --card-edit
 gpg --edit-card
 ```
-  These commands provide interactive menus for managing keys on a smart card or hardware token.
+
+These commands provide interactive menus for managing keys on a smart card or hardware token.
 
 ### Encrypt to Multiple Recipients Using Different Algorithms
 
 - GnuPG allows encryption to multiple recipients, each potentially using different algorithms.
+
 ```bash
 gpg --encrypt --recipient [RSA User] --recipient [ECC User] file.txt
 ```
@@ -518,6 +571,7 @@ gpg --encrypt --recipient [RSA User] --recipient [ECC User] file.txt
 ### Advanced Output and Logging
 
 - Direct GnuPG output to a file for logging or debugging.
+
 ```bash
 gpg --output result.txt --verbose --encrypt --recipient "User Name" file.txt
 ```

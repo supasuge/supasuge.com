@@ -7,20 +7,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='img/supasuge.jpg') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script nonce="{{ csp_nonce }}" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <!-- Complex layered background animation system -->
-    <div class="particle-layer-1"></div>
-    <div class="particle-layer-2"></div>
-    <div class="lattice-diagonal"></div>
-    <div class="orb-layer"></div>
-    <div class="noise-overlay"></div>
+    <canvas id="bg-lattice" aria-hidden="true"></canvas>
 
     <header>
         <nav class="admin-nav">
             <div class="nav-brand">
-                <a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
+                <a href="{{ url_for('admin.dashboard') }}">supasuge admin</a>
             </div>
             <ul class="nav-menu">
                 <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
@@ -28,7 +23,7 @@
                 <li><a href="{{ url_for('admin.categories_list') }}">Categories</a></li>
                 <li><a href="{{ url_for('admin.tags_list') }}">Tags</a></li>
                 <li><a href="{{ url_for('admin.analytics_overview') }}">Analytics</a></li>
-                <li><a href="/" class="back-to-site-btn">← Back to Site</a></li>
+                <li><a href="/" class="back-to-site-btn">Site</a></li>
                 <li>
                     <form action="{{ url_for('admin.logout') }}" method="post" style="display:inline;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -42,7 +37,7 @@
     <main class="admin-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="flash-messages">
+                <div class="flash-messages" id="flash-messages">
                     {% for category, message in messages %}
                         <div class="flash flash-{{ category }}">{{ message }}</div>
                     {% endfor %}
@@ -54,9 +49,22 @@
     </main>
 
     <footer>
-        <p>Admin Panel - supasuge.com</p>
+        <p>Admin Panel &middot; supasuge.com</p>
     </footer>
 
     {% block scripts %}{% endblock %}
+    <script nonce="{{ csp_nonce }}" src="{{ url_for('static', filename='js/lattice-bg.js') }}" defer></script>
+    <script nonce="{{ csp_nonce }}">
+    // Auto-dismiss flash messages after 5s
+    document.addEventListener('DOMContentLoaded', function() {
+        var flashes = document.querySelectorAll('.flash');
+        flashes.forEach(function(el) {
+            setTimeout(function() {
+                el.classList.add('flash-dismiss');
+                setTimeout(function() { el.remove(); }, 300);
+            }, 5000);
+        });
+    });
+    </script>
 </body>
 </html>

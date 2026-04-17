@@ -7,7 +7,7 @@ from typing import Callable
 
 from flask import current_app, g, redirect, request, url_for
 
-from auth.ssh_auth import verify_admin_session
+from .ssh_auth import verify_admin_session
 
 
 def require_admin(f: Callable) -> Callable:
@@ -19,12 +19,12 @@ def require_admin(f: Callable) -> Callable:
 
         if not session_token:
             current_app.logger.debug("No admin session cookie found")
-            return redirect(url_for("admin.login", next=request.url))
+            return redirect(url_for("admin.login"))
 
         session = verify_admin_session(session_token)
         if not session:
             current_app.logger.warning("Invalid admin session")
-            return redirect(url_for("admin.login", next=request.url))
+            return redirect(url_for("admin.login"))
 
         g.admin_session = session
         g.admin_key_fingerprint = session.key_fingerprint

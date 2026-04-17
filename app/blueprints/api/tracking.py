@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from flask import current_app, jsonify, request
 from blueprints.api import api_bp
+from extensions import limiter
 from services.analytics_service import record_pageview
 from models import PageView, db
 
 
 @api_bp.route("/track/pageview", methods=["POST"])
+@limiter.limit("30/minute")
 def track_pageview():
     """
     Record a pageview from the JavaScript tracker.
@@ -35,9 +37,13 @@ def track_pageview():
     if not isinstance(visitor_id, str) or len(visitor_id) < 32:
         return jsonify({"success": False, "error": "Invalid visitor_id"}), 400
 
+    if not isinstance(session_id, str) or not (16 <= len(session_id) <= 128):
+        return jsonify({"success": False, "error": "Invalid session_id"}), 400
+
     ip_address = request.remote_addr or "0.0.0.0"
-    user_agent = data.get("user_agent") or request.headers.get("User-Agent", "")
-    referrer = data.get("referrer")
+    user_agent = (data.get("user_agent") or request.headers.get("User-Agent", ""))[:512]
+    referrer = (data.get("referrer") or "")[:1024] or None
+    path = path[:512]
     screen_dims = data.get("screen") if isinstance(data.get("screen"), dict) else None
     post_id = data.get("post_id")
 
@@ -50,7 +56,7 @@ def track_pageview():
             user_agent=user_agent,
             ip_address=ip_address,
             screen_dims=screen_dims,
-            post_id=post_id if isinstance(post_id, int) else None,
+            post_id=post_id if isinstance(post_id, int) and post_id > 0 else None,
         )
 
         return jsonify({"success": True, "pageview_id": pageview.id}), 201
@@ -61,6 +67,7 @@ def track_pageview():
 
 
 @api_bp.route("/track/heartbeat", methods=["POST"])
+@limiter.limit("60/minute")
 def track_heartbeat():
     """
     Update time on page for an existing pageview.
@@ -79,12 +86,19 @@ def track_heartbeat():
         return jsonify({"success": False, "error": "Missing required fields"}), 400
 
     try:
+        pageview_id = int(pageview_id)
+        if pageview_id < 1:
+            return jsonify({"success": False, "error": "Invalid pageview_id"}), 400
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "error": "Invalid pageview_id"}), 400
+
+    try:
         pageview = db.session.query(PageView).filter_by(id=pageview_id).one_or_none()
         if not pageview:
             return jsonify({"success": False, "error": "Pageview not found"}), 404
 
         current = int(pageview.time_on_page or 0)
-        incoming = int(time_spent)
+        incoming = min(int(time_spent), 3600)  # cap at 1 hour
 
         if incoming < 0:
             incoming = 0

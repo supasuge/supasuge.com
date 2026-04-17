@@ -1,14 +1,7 @@
 ---
-title: 'NiteCTF Crypto Writeup: R Stands Alone
-summary: NiteCTF24 "R Stands Alone"  crypto writeup showing how the RSA modulus with three primes falls by factoring $r = a^3 + 16b^3$ in a cubic number field, recovering $p$ and $q$ to decrypt the flag.
-tags:
-- nitectf24
-- ctf
-- rsa
-- cryptography
-- sagemath
-- python
-- factorization
+title: "NiteCTF Crypto Writeup: R Stands Alone"
+summary: "NiteCTF24 'R Stands Alone' crypto writeup showing how the RSA modulus with three primes falls by factoring $r = a^3 + 16b^3$ in a cubic number field, recovering $p$ and $q$ to decrypt the flag."
+tags: ["nitectf24", "ctf", "rsa", "cryptography", "sagemath", "factorization"]
 published: true
 date: '2025-12-31'
 slug: nitectf-crypto-r-stands-alone

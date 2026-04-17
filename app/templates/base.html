@@ -1,92 +1,53 @@
 <!doctype html>
 <html lang="en">
 
-<!--
-basic ass header + MathJac script instantiations
--->
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <title>{% block title %}{{ site_name }}{% endblock %}</title>
-  <!-- Core styles -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
-  <!-- Pygments -->
+
   <style>
     {{ pygments_css | safe }}
   </style>
+
   <link rel="icon" href="{{ url_for('static', filename='img/supasuge.jpg') }}">
-  <!-- 
-       MathJax v3 (Obsidian-compatible, docs-aligned)
-       https://docs.mathjax.org/en/latest/web/configuration.html
-   -->
-  <script>
+
+  <script nonce="{{ csp_nonce }}">
     window.MathJax = {
-      loader: {
-        load: ['input/tex', 'output/chtml']
-      },
       tex: {
         inlineMath: [['$', '$']],
         displayMath: [['$$', '$$']],
         processEscapes: true,
         processEnvironments: true,
-        tags: 'none'   
       },
       options: {
-        skipHtmlTags: [
-          'script',
-          'noscript',
-          'style',
-          'textarea',
-          'pre',
-          'code'
-        ],
-        ignoreHtmlClass: 'tex2jax_ignore',
-        processHtmlClass: 'tex2jax_process'
+        skipHtmlTags: ['script','noscript','style','textarea','pre','code'],
       },
-      startup: {
-        typeset: true
-      }
     };
   </script>
-
-  <script
-    defer
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
-    id="MathJax-script">
-  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" nonce="{{ csp_nonce }}"></script>
 </head>
 
-
-
-
-
-
-
 <body>
-  <div class="particle-layer-1"></div>
-  <div class="particle-layer-2"></div>
-  <div class="lattice-diagonal"></div>
-  <div class="orb-layer"></div>
-  <div class="noise-overlay"></div>
-  <div class="hexagonal-lattice"></div>
-  <div class="fibonacci-lattice"></div>
-  <div class="voronoi-cells"></div>
-  <div class="moire-interference"></div>
-  <div class="reciprocal-lattice"></div>
+  <canvas id="bg-lattice" aria-hidden="true"></canvas>
 
   <header class="site-header">
     <div class="container">
       <a class="brand" href="{{ url_for('public.index') }}">
-    <img
-      src="{{ url_for('static', filename='img/supasuge.jpg') }}"
-      alt="supasuge avatar"
-      class="brand-avatar"
-      loading="eager"
-    >
-    <span>{{ site_name }}</span>
-    </a>
+        <img
+          src="{{ url_for('static', filename='img/supasuge.jpg') }}"
+          alt="supasuge avatar"
+          class="brand-avatar"
+          loading="eager"
+        >
+        <span>{{ site_name }}</span>
+      </a>
 
       <nav class="nav">
         <a href="{{ url_for('public.all_posts') }}">All</a>
@@ -95,38 +56,49 @@ basic ass header + MathJac script instantiations
         <a href="{{ url_for('public.tags_index') }}">Tags</a>
         <a href="{{ url_for('public.about') }}">About</a>
         <a href="{{ url_for('public.contact') }}">Contact</a>
+      </nav>
     </div>
   </header>
 
-
-
-
-
-
-
-
   <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% block content %}{% endblock %}
   </main>
-
-
-
-
-
-
-
-
+<!--
   <footer class="site-footer">
-    <div class="container muted">
-      <small>
-        © {{ site_year }} · Flask · MathJax v3 · Obsidian-friendly · All rights reserved supasuge ©
-      </small>
+    <div class="container footer-container">
+      <div class="mailing-list">
+        <h3 class="mailing-list-title">Weekly Threat Intel</h3>
+        <p class="mailing-list-desc">Subscribe for weekly writeups on emerging threats, vulnerability analysis, and offensive security research.</p>
+        <form action="{{ url_for('public.subscribe') }}" method="post" class="mailing-list-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="email" name="email" placeholder="you@example.com" required class="mailing-list-input" autocomplete="email">
+          <button type="submit" class="mailing-list-btn">Subscribe</button>
+        </form>
+      </div>
+-->
+      <p class="footer-text">
+        &copy; {{ site_year }} &middot; Flask &middot; MathJax v3 &middot; All rights reserved supasuge
+      </p>
+
+      <nav class="footer-links" aria-label="Legal">
+        <a href="{{ url_for('public.privacy') }}">Privacy Policy</a>
+        <a href="{{ url_for('public.terms') }}">Terms of Use</a>
+        <a href="{{ url_for('public.security_txt') }}">Security</a>
+      </nav>
     </div>
   </footer>
 
-  <!-- Analytics tracking (privacy-first, respects DNT) -->
-  {% if config.ANALYTICS_ENABLED %}
-  <script src="{{ url_for('static', filename='js/analytics.js') }}" defer></script>
+  <script nonce="{{ csp_nonce }}" src="{{ url_for('static', filename='js/lattice-bg.js') }}" defer></script>
+
+  {% if analytics_enabled %}
+  <script nonce="{{ csp_nonce }}" src="{{ url_for('static', filename='js/analytics.js') }}" defer></script>
   {% endif %}
 </body>
 </html>

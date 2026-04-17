@@ -1,18 +1,31 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Admin{% endblock %}
 {% block content %}
-  <h1>Admin Dashboard</h1>
-  <p class="muted">Localhost-only. Access via SSH tunnel.</p>
+<div class="admin-header">
+    <h1>Dashboard</h1>
+</div>
 
-  <h2>Top pages</h2>
-  <table class="data-table">
-    <thead><tr><th>Path</th><th>Views</th></tr></thead>
+<h2>Top Pages by Views</h2>
+{% if top %}
+<table class="data-table">
+    <thead>
+        <tr>
+            <th style="width: 60px">#</th>
+            <th>Path</th>
+            <th style="width: 120px; text-align: right">Views</th>
+        </tr>
+    </thead>
     <tbody>
-      {% for path, n in top %}
-        <tr><td><code>{{ path }}</code></td><td>{{ n }}</td></tr>
-      {% else %}
-        <tr><td colspan="2" class="muted">No data yet.</td></tr>
-      {% endfor %}
+        {% for path, n in top %}
+        <tr>
+            <td style="color: rgba(255,255,255,0.3)">{{ loop.index }}</td>
+            <td><code>{{ path }}</code></td>
+            <td style="text-align: right; font-weight: 600; font-variant-numeric: tabular-nums">{{ n }}</td>
+        </tr>
+        {% endfor %}
     </tbody>
-  </table>
+</table>
+{% else %}
+<p class="muted" style="padding: 2rem 0;">No pageview data yet. Analytics will appear once visitors start browsing.</p>
+{% endif %}
 {% endblock %}

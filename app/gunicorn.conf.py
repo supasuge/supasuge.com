@@ -1,5 +1,5 @@
 import os
-import gunicorn
+
 bind = os.getenv("BIND", "0.0.0.0:8000")
 workers = int(os.getenv("GUNICORN_WORKERS", "2"))
 threads = int(os.getenv("GUNICORN_THREADS", "4"))

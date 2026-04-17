@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-from flask import Blueprint, abort, render_template, send_from_directory
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from models import Category, Post, Tag, db
+import re
+from datetime import UTC, datetime
+from flask import Blueprint, Response, abort, flash, redirect, render_template, request, send_from_directory, url_for
+from extensions import limiter
+from models import Category, MailingListSubscriber, Post, Tag, db
 from security import slugify
 
 public_bp = Blueprint("public", __name__)
-
-# Single limiter instance; configured in create_app()
-limiter = Limiter(key_func=get_remote_address)
 
 
 @public_bp.route("/")
@@ -31,14 +29,27 @@ def about():
     return render_template("about.html")
 
 
+
 @public_bp.route("/contact")
 def contact():
     return render_template("contact.html")
 
 
+@public_bp.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
+@public_bp.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
 @public_bp.route("/p/<slug>/")
 @limiter.limit("120/minute")
 def post_view(slug: str):
+    
+
     slug = slugify(slug)
     if not (1 <= len(slug) <= 100):
         abort(404)
@@ -135,6 +146,90 @@ def all_posts():
         .all()
     )
     return render_template("all_posts.html", posts=posts)
+
+
+@public_bp.route("/subscribe", methods=["POST"])
+@limiter.limit("5/minute")
+def subscribe():
+    email = (request.form.get("email") or "").strip().lower()
+
+    if not email or not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        flash("Please enter a valid email address.", "error")
+        return redirect(request.referrer or url_for("public.index"))
+
+    existing = db.session.query(MailingListSubscriber).filter_by(email=email).one_or_none()
+    if existing and not existing.unsubscribed:
+        flash("You're already subscribed!", "info")
+        return redirect(request.referrer or url_for("public.index"))
+
+    if existing and existing.unsubscribed:
+        existing.unsubscribed = False
+        existing.confirmed = False
+    else:
+        subscriber = MailingListSubscriber(email=email)
+        db.session.add(subscriber)
+
+    db.session.commit()
+    flash("Thanks for subscribing! You'll hear from us soon.", "success")
+    return redirect(request.referrer or url_for("public.index"))
+
+
+@public_bp.route("/sitemap.xml")
+@limiter.limit("10/minute")
+def sitemap_xml():
+    """Generate sitemap.xml dynamically from published routes and posts."""
+    base = request.url_root.rstrip("/")
+    now = datetime.now(UTC).strftime("%Y-%m-%d")
+
+    urls = []
+
+    # Static public pages
+    static_routes = [
+        (url_for("public.index"), "1.0", "daily"),
+        (url_for("public.about"), "0.6", "monthly"),
+        (url_for("public.contact"), "0.5", "monthly"),
+        (url_for("public.all_posts"), "0.8", "daily"),
+        (url_for("public.categories_index"), "0.7", "weekly"),
+        (url_for("public.projects_index"), "0.7", "weekly"),
+        (url_for("public.tags_index"), "0.6", "weekly"),
+    ]
+    for path, priority, freq in static_routes:
+        urls.append(f'  <url><loc>{base}{path}</loc><lastmod>{now}</lastmod>'
+                     f'<changefreq>{freq}</changefreq><priority>{priority}</priority></url>')
+
+    # Published posts
+    posts = (
+        db.session.query(Post)
+        .filter(Post.published.is_(True))
+        .order_by(Post.updated_at.desc())
+        .all()
+    )
+    for post in posts:
+        lastmod = (post.updated_at or post.created_at or datetime.now(UTC)).strftime("%Y-%m-%d")
+        loc = f"{base}{url_for('public.post_view', slug=post.slug)}"
+        urls.append(f'  <url><loc>{loc}</loc><lastmod>{lastmod}</lastmod>'
+                     f'<changefreq>weekly</changefreq><priority>0.8</priority></url>')
+
+    # Categories
+    categories = db.session.query(Category).all()
+    for cat in categories:
+        loc = f"{base}{url_for('public.category_view', category=cat.slug)}"
+        urls.append(f'  <url><loc>{loc}</loc><changefreq>weekly</changefreq>'
+                     f'<priority>0.5</priority></url>')
+
+    # Tags
+    tags = db.session.query(Tag).all()
+    for tag in tags:
+        loc = f"{base}{url_for('public.tag_view', tag=tag.slug)}"
+        urls.append(f'  <url><loc>{loc}</loc><changefreq>weekly</changefreq>'
+                     f'<priority>0.4</priority></url>')
+
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+           + "\n".join(urls) + "\n</urlset>")
+
+    return Response(xml, mimetype="application/xml",
+                    headers={"Cache-Control": "public, max-age=3600"})
 
 
 @public_bp.route("/robots.txt")

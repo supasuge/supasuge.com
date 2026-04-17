@@ -9,116 +9,341 @@
 </div>
 
 <div class="form-container">
-    <div class="post-info">
-        <h2>{{ post.title }}</h2>
-        <p class="meta">
-            <strong>Slug:</strong> {{ post.slug }}<br>
-            <strong>Category:</strong> {{ post.category.name }}<br>
-            <strong>Source:</strong> {{ post.source_path }}<br>
-            <strong>Created:</strong> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}<br>
-            <strong>Updated:</strong> {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}
-        </p>
-    </div>
-
-    <form method="post">
+    <form method="post" id="edit-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="published" value="true" {% if post.published %}checked{% endif %}>
-                Published
-            </label>
-        </div>
 
-        <div class="form-group">
-            <label>Tags</label>
-            <div class="tag-picker" data-selected-tags='{{ post.tags | map(attribute="slug") | list | tojson }}'></div>
-            <p class="help-text">Type to search existing tags or press Enter to create new ones.</p>
-        </div>
+        <div class="edit-grid">
+            <!-- Left: Metadata -->
+            <div class="metadata-panel">
+                <h3>Metadata</h3>
 
-        <div class="alert alert-info">
-            <strong>Note:</strong> To edit the post content, summary, or title, edit the source markdown file at:
-            <code>{{ post.source_path }}</code> and then click "Sync from Filesystem" on the posts list page.
-        </div>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" value="{{ post.title }}" class="form-input">
+                </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Cancel</a>
+                <div class="form-group">
+                    <label for="summary">Summary</label>
+                    <textarea id="summary" name="summary" rows="3" class="form-input">{{ post.summary }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tag_slugs">Tags (comma-separated)</label>
+                    <input type="text" id="tag_slugs" name="tag_slugs"
+                           value="{{ post.tags | map(attribute='slug') | join(', ') }}"
+                           class="form-input"
+                           placeholder="tag1, tag2, tag3">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="published" value="true" {% if post.published %}checked{% endif %}>
+                        Published
+                    </label>
+                </div>
+
+                <div class="post-meta">
+                    <p><strong>Slug:</strong> {{ post.slug }}</p>
+                    <p><strong>Category:</strong> {{ post.category.name }}</p>
+                    <p><strong>Source:</strong> <code>{{ post.source_path }}</code></p>
+                    <p><strong>Created:</strong> {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p><strong>Updated:</strong> {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save All</button>
+                    <button type="button" id="save-content-btn" class="btn btn-accent">Save Content Only</button>
+                    <a href="{{ url_for('admin.posts_list') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+
+            <!-- Right: Content Editor -->
+            <div class="editor-panel">
+                <div class="editor-toolbar">
+                    <h3>Content (Markdown)</h3>
+                    <div class="editor-actions">
+                        <button type="button" id="toggle-preview" class="btn btn-sm">Preview</button>
+                        <span id="save-status" class="save-status"></span>
+                    </div>
+                </div>
+
+                <textarea id="content_md" name="content_md" class="editor-textarea">{{ post.content_md }}</textarea>
+
+                <div id="preview-pane" class="preview-pane hidden">
+                    <div class="post-content">
+                        {{ post.content_html | safe }}
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
-
-    <div class="preview">
-        <h3>Post Preview</h3>
-        <div class="post-content">
-            {{ post.content_html | safe }}
-        </div>
-    </div>
 </div>
 
 <style>
 .form-container {
-    max-width: 900px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
-.post-info {
+.edit-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.metadata-panel {
     background: rgba(255, 255, 255, 0.05);
     padding: 1.5rem;
     border: 1px solid rgba(125, 211, 252, 0.3);
     border-radius: 8px;
-    margin-bottom: 2rem;
+    position: sticky;
+    top: 1rem;
 }
 
-.post-info h2 {
+.metadata-panel h3 {
     margin-top: 0;
-    color: #7dd3fc;
-}
-
-.post-info .meta {
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.8;
-}
-
-.alert {
-    padding: 1rem;
-    border-radius: 4px;
-    margin: 1.5rem 0;
-}
-
-.alert-info {
-    background: rgba(59, 130, 246, 0.2);
-    border: 1px solid rgba(59, 130, 246, 0.5);
-    color: #93c5fd;
-}
-
-.alert code {
-    background: rgba(0, 0, 0, 0.3);
-    padding: 0.2rem 0.5rem;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-}
-
-.preview {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(125, 211, 252, 0.3);
-}
-
-.preview h3 {
     color: #7dd3fc;
     margin-bottom: 1rem;
 }
 
-.post-content {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 2rem;
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #7dd3fc;
+}
+
+.post-meta {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(125, 211, 252, 0.2);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.post-meta p {
+    margin: 0.2rem 0;
+}
+
+.post-meta code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    word-break: break-all;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.editor-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+}
+
+.editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.editor-toolbar h3 {
+    margin: 0;
+    color: #7dd3fc;
+}
+
+.editor-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.editor-textarea {
+    width: 100%;
+    flex: 1;
+    min-height: 70vh;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(125, 211, 252, 0.3);
     border-radius: 8px;
-    max-height: 600px;
+    color: #e2e8f0;
+    font-family: 'Courier New', 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+    tab-size: 4;
+    box-sizing: border-box;
+}
+
+.editor-textarea:focus {
+    outline: none;
+    border-color: #7dd3fc;
+    box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.1);
+}
+
+.preview-pane {
+    flex: 1;
+    min-height: 70vh;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(125, 211, 252, 0.3);
+    border-radius: 8px;
     overflow-y: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.save-status {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+}
+
+.save-status.saved {
+    color: #4ade80;
+}
+
+.save-status.saving {
+    color: #facc15;
+}
+
+.save-status.error {
+    color: #f87171;
+}
+
+.btn-sm {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-accent {
+    background: rgba(125, 211, 252, 0.2);
+    border: 1px solid #7dd3fc;
+    color: #7dd3fc;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.btn-accent:hover {
+    background: rgba(125, 211, 252, 0.3);
+}
+
+@media (max-width: 900px) {
+    .edit-grid {
+        grid-template-columns: 1fr;
+    }
+    .metadata-panel {
+        position: static;
+    }
 }
 </style>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/tag-picker.js') }}"></script>
+<script nonce="{{ csp_nonce }}">
+(function() {
+    const textarea = document.getElementById('content_md');
+    const previewPane = document.getElementById('preview-pane');
+    const toggleBtn = document.getElementById('toggle-preview');
+    const saveBtn = document.getElementById('save-content-btn');
+    const saveStatus = document.getElementById('save-status');
+    const csrfToken = document.querySelector('[name=csrf_token]').value;
+    let showingPreview = false;
+
+    // Toggle preview
+    toggleBtn.addEventListener('click', function() {
+        showingPreview = !showingPreview;
+        if (showingPreview) {
+            textarea.classList.add('hidden');
+            previewPane.classList.remove('hidden');
+            toggleBtn.textContent = 'Editor';
+        } else {
+            textarea.classList.remove('hidden');
+            previewPane.classList.add('hidden');
+            toggleBtn.textContent = 'Preview';
+        }
+    });
+
+    // Tab key support in textarea
+    textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 4;
+        }
+
+        // Ctrl+S / Cmd+S to save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveContent();
+        }
+    });
+
+    // AJAX save content
+    function saveContent() {
+        saveStatus.textContent = 'Saving...';
+        saveStatus.className = 'save-status saving';
+
+        fetch('{{ url_for("admin.post_save_content", post_id=post.id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ content_md: textarea.value }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                saveStatus.textContent = 'Saved';
+                saveStatus.className = 'save-status saved';
+                setTimeout(() => { saveStatus.textContent = ''; }, 3000);
+            } else {
+                saveStatus.textContent = 'Error: ' + data.error;
+                saveStatus.className = 'save-status error';
+            }
+        })
+        .catch(err => {
+            saveStatus.textContent = 'Network error';
+            saveStatus.className = 'save-status error';
+        });
+    }
+
+    saveBtn.addEventListener('click', saveContent);
+})();
+</script>
 {% endblock %}

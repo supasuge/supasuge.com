@@ -5,7 +5,7 @@ KEY_PATH="${KEY_PATH:-$HOME/.ssh/id_ed25519_blog_vps}"
 REMOTE_USER="${REMOTE_USER:-appuser}"
 REMOTE_HOST="${REMOTE_HOST:-supasuge.com}"
 REMOTE_DEST="${REMOTE_DEST:-~/}"
-SRC_DIR="${SRC_DIR:-/home/supasuge/Documents/supasuge.com}"
+SRC_DIR="${SRC_DIR:-/home/supasuge/Documents/Projects/supasuge.com}"
 
 if [[ ! -f "$KEY_PATH" ]]; then
   echo "[transfer] Missing key: $KEY_PATH" >&2

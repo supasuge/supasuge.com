@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Terms of Use · {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="article legal-doc">
+  <h1>Terms of Use</h1>
+  <p class="muted">
+    Effective date: {{ site_year }}-01-01
+  </p>
+
+  <p>
+    These Terms of Use ("Terms") govern your access to and use of supasuge.com
+    and its related content, pages, features, and services (collectively, the "Site").
+    By accessing or using the Site, you agree to be bound by these Terms. If you do
+    not agree, do not use the Site.
+  </p>
+
+  <h2>1. Eligibility and Authority</h2>
+  <p>
+    You represent that you are legally capable of entering into these Terms and that,
+    if you use the Site on behalf of an organization, you have authority to bind that
+    organization to these Terms.
+  </p>
+
+  <h2>2. Permitted Use</h2>
+  <p>
+    Subject to these Terms, you may access and use the Site for lawful personal,
+    educational, research, informational, and internal business purposes.
+  </p>
+
+  <h2>3. Prohibited Conduct</h2>
+  <p>
+    You agree not to:
+  </p>
+  <ul>
+    <li>violate any applicable law, regulation, or third-party right;</li>
+    <li>interfere with, disrupt, degrade, overburden, or damage the Site or its infrastructure;</li>
+    <li>bypass or attempt to bypass authentication, rate limiting, access restrictions, or security controls;</li>
+    <li>use automated tools to scrape, harvest, mirror, benchmark, or mass-download Site content in a manner that is abusive or unauthorized;</li>
+    <li>introduce malicious code, payloads, or unauthorized content;</li>
+    <li>attempt to gain unauthorized access to non-public areas, accounts, systems, or data;</li>
+    <li>use the Site to infringe intellectual property, privacy, publicity, or confidentiality rights;</li>
+    <li>misrepresent your affiliation, identity, or source of activity;</li>
+    <li>use the Site in a way that creates legal exposure, security risk, or operational burden for the Site owner.</li>
+  </ul>
+
+  <h2>4. Security Research and Responsible Disclosure</h2>
+  <p>
+    Responsible testing of public-facing Site logic is permitted only to the extent
+    described in the Site's published <a href="{{ url_for('public.security_txt') }}">security.txt</a>
+    and only when conducted lawfully, carefully, and non-disruptively. Nothing in these
+    Terms authorizes destructive testing, denial-of-service activity, credential attacks,
+    persistence, privilege escalation, or access to data you are not clearly authorized
+    to access.
+  </p>
+
+  <h2>5. Content Ownership</h2>
+  <p>
+    Unless otherwise stated, the Site design, text, writeups, graphics, software,
+    source materials, and other original content on the Site are owned by the Site
+    operator or used with permission and are protected by applicable intellectual
+    property laws.
+  </p>
+
+  <h2>6. Limited License</h2>
+  <p>
+    You are granted a limited, non-exclusive, non-transferable, revocable license to
+    access and use the Site in accordance with these Terms. No ownership interest is
+    transferred to you. All rights not expressly granted are reserved.
+  </p>
+
+  <h2>7. User Submissions</h2>
+  <p>
+    If you submit messages, disclosures, feedback, or other material to the Site owner,
+    you represent that you have the right to submit that material and you grant a
+    non-exclusive, worldwide, royalty-free license to review, store, reproduce, and use
+    that material as reasonably necessary to respond, investigate, maintain records, or
+    operate and secure the Site.
+  </p>
+
+  <h2>8. No Professional Advice</h2>
+  <p>
+    Content on the Site is provided for informational and educational purposes only and
+    does not constitute legal advice, consulting advice, guaranteed security guidance,
+    or any other professional advice unless expressly stated in a separate signed
+    written agreement.
+  </p>
+
+  <h2>9. No Warranty</h2>
+  <p>
+    THE SITE AND ALL CONTENT ARE PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTIES
+    OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR STATUTORY, INCLUDING ANY IMPLIED WARRANTIES
+    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT,
+    AVAILABILITY, ACCURACY, OR QUIET ENJOYMENT, TO THE MAXIMUM EXTENT PERMITTED BY LAW.
+  </p>
+
+  <h2>10. Limitation of Liability</h2>
+  <p>
+    TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE SITE OWNER SHALL NOT BE LIABLE FOR ANY
+    INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR
+    ANY LOSS OF PROFITS, REVENUE, DATA, USE, GOODWILL, OR BUSINESS OPPORTUNITY, ARISING
+    OUT OF OR RELATED TO THE SITE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+  </p>
+  <p>
+    TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE TOTAL AGGREGATE LIABILITY OF THE SITE OWNER
+    FOR ALL CLAIMS ARISING OUT OF OR RELATING TO THE SITE OR THESE TERMS SHALL NOT EXCEED
+    ONE HUNDRED U.S. DOLLARS (US $100.00) OR THE AMOUNT YOU PAID DIRECTLY TO THE SITE OWNER
+    FOR THE SPECIFIC SERVICE GIVING RISE TO THE CLAIM, WHICHEVER IS GREATER.
+  </p>
+
+  <h2>11. Indemnification</h2>
+  <p>
+    You agree to defend, indemnify, and hold harmless the Site owner and the owner's
+    affiliates, agents, contractors, licensors, and service providers from and against
+    claims, liabilities, damages, losses, and expenses, including reasonable attorneys'
+    fees and costs, arising out of or related to your use of the Site, your violation
+    of these Terms, or your violation of any law or third-party right.
+  </p>
+
+  <h2>12. Suspension and Termination</h2>
+  <p>
+    We may suspend, restrict, block, or terminate access to the Site, in whole or in part,
+    at any time, with or without notice, if we reasonably believe doing so is necessary
+    for security, maintenance, legal compliance, abuse prevention, or enforcement of
+    these Terms.
+  </p>
+
+  <h2>13. Third-Party Services and Links</h2>
+  <p>
+    The Site may link to or depend on third-party services, infrastructure, CDNs, or
+    external sites. We are not responsible for third-party content, policies, uptime,
+    or practices.
+  </p>
+
+  <h2>14. Changes to the Site or Terms</h2>
+  <p>
+    We may modify, suspend, or discontinue any part of the Site at any time. We may also
+    update these Terms by posting a revised version on this page. Your continued use of
+    the Site after the effective date of revised Terms constitutes acceptance of the revised Terms.
+  </p>
+
+  <h2>15. Governing Law</h2>
+  <p>
+    These Terms are governed by the laws of the State of Michigan, without regard to its
+    conflict-of-law principles, except to the extent superseded by applicable federal law.
+  </p>
+
+  <h2>16. Venue</h2>
+  <p>
+    To the fullest extent permitted by law, any dispute, claim, or controversy arising
+    out of or relating to the Site or these Terms shall be brought exclusively in the
+    state or federal courts located in Michigan, and each party consents to the personal
+    jurisdiction and venue of those courts.
+  </p>
+
+  <h2>17. Electronic Communications</h2>
+  <p>
+    You agree that these Terms, policies, notices, and other communications may be
+    provided electronically and that electronic records and signatures shall have the
+    same force and effect as paper records and handwritten signatures to the extent
+    permitted by applicable law.
+  </p>
+
+  <h2>18. Severability</h2>
+  <p>
+    If any provision of these Terms is held invalid or unenforceable, the remaining
+    provisions shall remain in full force and effect to the maximum extent permitted by law.
+  </p>
+
+  <h2>19. Entire Agreement</h2>
+  <p>
+    These Terms, together with any policies expressly incorporated by reference,
+    constitute the entire agreement between you and the Site owner regarding use of
+    the Site, except where superseded by a separate signed written agreement.
+  </p>
+
+  <h2>20. Contact</h2>
+  <p>
+    For questions about these Terms, contact:
+    <a href="mailto:epardo1742@proton.me">epardo1742@proton.me</a>
+  </p>
+</article>
+{% endblock %}

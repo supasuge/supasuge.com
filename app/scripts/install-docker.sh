@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-if command -v docker &>/dev/null; then
-    echo "Command: 'docker' exists. Exiting safely"
-    exit 0
-else
-    install_docker
+
 install_docker() {
     echo "[+] Installing Docker Engine + Compose plugin (official repo)..."
 
@@ -21,24 +17,26 @@ install_docker() {
     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     sudo apt-get update -y
-
-    # Install engine + compose plugin
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-    # Enable service
     sudo systemctl enable --now docker
 
-    # Add current user to docker group (requires logout/login to take effect)
     if ! getent group docker >/dev/null; then
-    sudo groupadd docker || true
+        sudo groupadd docker || true
     fi
-
     sudo usermod -aG docker "$USER" || true
-    sudo newgrp docker
+
     echo "[+] Docker installed."
     docker version
     docker compose version
-    echo "[!] Note: re-login (or run: newgrp docker) to use docker without sudo."
-    echo "[?] Testing..."
-    docker run -t hello-world
+    echo "[!] Log out and back in (or run: newgrp docker) to use docker without sudo."
 }
+
+if command -v docker &>/dev/null; then
+    echo "[+] Docker already installed. Exiting."
+    docker version
+    docker compose version
+    exit 0
+fi
+
+install_docker

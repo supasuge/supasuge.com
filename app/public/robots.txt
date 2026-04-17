@@ -1,9 +1,108 @@
+# Block admin and API paths
 User-agent: *
 Disallow: /admin/
+Disallow: /api/
 Crawl-delay: 10
 
-User-agent: Googlebot
+# Block known AI scrapers and training bots
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# Block aggressive ad/SEO crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: Sogou
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+# Block Google Ads crawler (not search indexing)
 User-agent: AdsBot-Google
 Disallow: /
+
+User-agent: AdsBot-Google-Mobile
+Disallow: /
+
+# Block misc scrapers
+User-agent: serpstatbot
+Disallow: /
+
+User-agent: Seekport
+Disallow: /
+
+User-agent: ZoominfoBot
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: img2dataset
+Disallow: /
+
+# Allow legitimate search engine crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
 
 Sitemap: https://supasuge.com/sitemap.xml

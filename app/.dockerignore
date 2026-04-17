@@ -9,9 +9,24 @@ __pycache__/
 .idea/
 node_modules/
 dist/
-build/
 .envrc
 .DS_Store
 .claude
+tests/
+!.env.example
+keys/
+
+# Dev/docs
 ADMIN.md
-docs/IMPLEMENTATION_STATUS.md
+docs/
+tests/
+*.md
+!templates/**/*.md
+!content/**/*.md
+
+# Local database
+instance/
+
+# Docker files (not needed inside container)
+docker-compose.yml
+Caddyfile

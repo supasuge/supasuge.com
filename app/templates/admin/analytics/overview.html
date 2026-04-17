@@ -74,7 +74,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce }}">
 if (typeof Chart !== 'undefined') {
   const dailyData = {{ summary.daily_views | tojson | safe }};
   const labels = dailyData.map(d => d[0]);

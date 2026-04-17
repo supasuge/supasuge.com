@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy · {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="article legal-doc">
+  <h1>Privacy Policy</h1>
+  <p class="muted">
+    Effective date: {{ site_year }}-01-01
+  </p>
+
+  <p>
+    This Privacy Policy explains how supasuge.com ("Site," "we," "us," or "our")
+    collects, uses, stores, and discloses information when you visit or interact
+    with this Site. This Policy is intended to be specific to the Site as currently
+    implemented, including its self-hosted analytics system.
+  </p>
+
+  <h2>1. Scope</h2>
+  <p>
+    This Privacy Policy applies to public pages on the Site, Site administration
+    interfaces, and Site communications that link or refer to this Policy.
+  </p>
+
+  <h2>2. What We Collect</h2>
+
+  <h3>2.1 Data collected automatically through Site analytics</h3>
+  <p>
+    If analytics are enabled and your browser does not send a Do Not Track preference
+    that disables analytics, the Site currently collects the following data for pageview
+    and session analytics:
+  </p>
+  <ul>
+    <li><strong>Page path</strong> (for example, the URL path visited)</li>
+    <li><strong>Post identifier</strong> when viewing a post page, if available in the page markup</li>
+    <li><strong>Visitor identifier</strong> stored in the <code>analytics_vid</code> cookie</li>
+    <li><strong>Session identifier</strong> stored in browser <code>sessionStorage</code></li>
+    <li><strong>Referrer</strong> (<code>document.referrer</code>)</li>
+    <li><strong>Screen dimensions</strong> (screen width and screen height)</li>
+    <li><strong>User agent string</strong></li>
+    <li><strong>Timestamp</strong> of the pageview request</li>
+    <li><strong>Heartbeat / time-on-page data</strong> tied to a pageview record</li>
+    <li><strong>Landing page, exit page, session page count, first seen, and last seen</strong> derived from analytics session processing</li>
+  </ul>
+
+  <h3>2.2 Cookie and storage details</h3>
+  <ul>
+    <li>
+      <strong><code>analytics_vid</code> cookie:</strong> a stable visitor identifier generated client-side from cryptographically random bytes and stored for approximately 365 days.
+    </li>
+    <li>
+      <strong><code>analytics_session</code> sessionStorage value:</strong> a per-tab session identifier stored in browser session storage and normally cleared when that tab/session ends.
+    </li>
+  </ul>
+
+  <h3>2.3 Server-side and derived analytics data</h3>
+  <p>
+    When analytics requests reach the server, the server may additionally record or derive:
+  </p>
+  <ul>
+    <li><strong>Truncated / anonymized IP information</strong> (IPv4 is reduced to the first three octets plus <code>.0</code>; IPv6 is shortened)</li>
+    <li><strong>Approximate geolocation</strong> derived from the request IP if a GeoIP database is configured, including country code, country name, city, and region</li>
+    <li><strong>Internal pageview and analytics session database identifiers</strong></li>
+  </ul>
+
+  <h3>2.4 Administrative and security logging</h3>
+  <p>
+    The Site stack may also generate standard application, reverse-proxy, rate-limit,
+    and security logs for operational and defensive purposes. Depending on the request
+    and the component generating the log, such logs may include IP address, request path,
+    timestamp, status code, host header, and user agent.
+  </p>
+
+  <h3>2.5 Information you choose to provide</h3>
+  <p>
+    If you contact us directly, submit a responsible disclosure, authenticate to an
+    administrative interface, or otherwise send information to us, we may collect the
+    information you choose to provide, including message contents and contact details.
+  </p>
+
+  <h2>3. What We Do Not Intend to Do</h2>
+  <ul>
+    <li>We do not use third-party advertising trackers.</li>
+    <li>We do not currently use third-party analytics platforms such as Google Analytics.</li>
+    <li>We do not currently sell visitor personal information.</li>
+    <li>We do not currently use the analytics data collected by this Site to serve behavioral advertising.</li>
+  </ul>
+
+  <h2>4. Do Not Track</h2>
+  <p>
+    The client-side analytics script is designed to stop running when the browser's
+    Do Not Track signal is enabled. The server-side pageview endpoint is also configured
+    to respect a <code>DNT: 1</code> request header where applicable.
+  </p>
+
+  <h2>5. Purposes of Processing</h2>
+  <p>
+    We process the information described above for the following purposes:
+  </p>
+  <ul>
+    <li>to operate, maintain, and secure the Site;</li>
+    <li>to understand traffic volume and which content is being read;</li>
+    <li>to measure approximate time-on-page and page popularity;</li>
+    <li>to debug errors, abuse, and operational issues;</li>
+    <li>to investigate suspected malicious activity or misuse;</li>
+    <li>to respond to inquiries, disclosures, or administrative requests.</li>
+  </ul>
+
+  <h2>6. Legal Basis and Consent Position</h2>
+  <p>
+    By using the Site, you acknowledge that the Site uses the practices described in
+    this Policy. Where applicable law requires a different consent mechanism for a given
+    visitor or jurisdiction, you are responsible for refraining from use unless and until
+    that mechanism is implemented. Nothing in this Policy is intended to waive any
+    non-waivable statutory rights.
+  </p>
+
+  <h2>7. Data Sharing</h2>
+  <p>
+    We may disclose information:
+  </p>
+  <ul>
+    <li>to service providers or infrastructure providers that host or support the Site;</li>
+    <li>when reasonably necessary to protect the security, integrity, or availability of the Site;</li>
+    <li>to comply with applicable law, lawful process, court order, subpoena, or government request;</li>
+    <li>in connection with investigating fraud, abuse, security incidents, or Terms violations;</li>
+    <li>as part of a business transfer involving the Site, if one occurs.</li>
+  </ul>
+
+  <h2>8. Retention</h2>
+  <p>
+    The Site configuration currently includes an analytics retention setting targeted at
+    {{ analytics_retention_days }} days. However, as the Site is presently implemented,
+    that setting does not by itself guarantee automatic deletion. Unless and until an
+    automated purge mechanism is deployed, analytics and related operational records may
+    remain longer than the configured target retention period.
+  </p>
+  <p>
+    We may retain data longer where reasonably necessary for security, debugging,
+    fraud prevention, legal compliance, dispute resolution, or backup integrity.
+  </p>
+
+  <h2>9. Security</h2>
+  <p>
+    We use administrative, technical, and organizational measures intended to reduce risk,
+    including HTTPS, host allowlisting, rate limiting, content security policy controls,
+    input validation, access controls for administrative functions, and security logging.
+    No method of transmission, storage, or processing is guaranteed to be completely secure.
+  </p>
+
+  <h2>10. Children's Privacy</h2>
+  <p>
+    This Site is not directed to children under 13, and we do not intentionally solicit
+    personal information from children under 13 through the public portions of the Site.
+  </p>
+
+  <h2>11. Your Choices</h2>
+  <ul>
+    <li>You may enable Do Not Track in supported browsers.</li>
+    <li>You may clear the <code>analytics_vid</code> cookie in your browser.</li>
+    <li>You may clear browser session storage to remove the current per-tab session identifier.</li>
+    <li>You may stop using the Site at any time.</li>
+  </ul>
+
+  <h2>12. Jurisdiction-Specific Rights</h2>
+  <p>
+    Depending on where you are located, you may have rights to request access to,
+    correction of, deletion of, or restriction regarding certain personal information.
+    Because this Site is small, self-hosted, and subject to changing technical and legal
+    conditions, rights handling may vary depending on what information can reasonably be
+    tied back to your request.
+  </p>
+
+  <h2>13. Changes to This Policy</h2>
+  <p>
+    We may update this Privacy Policy from time to time. The updated version becomes
+    effective when posted to this page, unless otherwise stated.
+  </p>
+
+  <h2>14. Contact</h2>
+  <p>
+    For privacy questions, security disclosures, or legal notices relating to this Policy,
+    contact: <a href="mailto:epardo1742@proton.me">epardo1742@proton.me</a>
+  </p>
+</article>
+{% endblock %}

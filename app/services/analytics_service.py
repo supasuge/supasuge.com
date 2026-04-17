@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from typing import Any, Optional
 
 import geoip2.database
@@ -67,7 +67,7 @@ def get_or_create_visitor(visitor_hash: str, ip_address: str, user_agent: str) -
     try:
         visitor = db.session.query(Visitor).filter_by(visitor_hash=visitor_hash).one_or_none()
         if visitor:
-            visitor.last_seen = datetime.utcnow()
+            visitor.last_seen = datetime.now(UTC)
             db.session.commit()
             return visitor
 
@@ -96,13 +96,11 @@ def get_or_create_session(session_hash: str, visitor: Visitor, referrer: str, la
     try:
         session = db.session.query(AnalyticsSession).filter_by(session_hash=session_hash).one_or_none()
         timeout_seconds = int(current_app.config.get("ANALYTICS_SESSION_TIMEOUT", 1800))
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         if session:
-            # If timed out, end and "restart" the same session row.
+            # If timed out, restart the session window (reuse same unique session_hash row).
             if session.last_activity and (now - session.last_activity) > timedelta(seconds=timeout_seconds):
-                session.ended_at = session.last_activity
-                # restart window (reuse same unique session_hash)
                 session.started_at = now
                 session.last_activity = now
                 session.ended_at = None
@@ -190,7 +188,7 @@ def record_pageview(
 
 def get_analytics_summary(days: int = 30) -> dict[str, Any]:
     try:
-        cutoff = datetime.utcnow() - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
 
         total_views = (
             db.session.query(func.count(PageView.id))
@@ -287,9 +285,9 @@ def get_post_analytics(
             raise ValueError(f"Post with id {post_id} not found")
 
         if not start_date:
-            start_date = datetime.utcnow() - timedelta(days=30)
+            start_date = datetime.now(UTC) - timedelta(days=30)
         if not end_date:
-            end_date = datetime.utcnow()
+            end_date = datetime.now(UTC)
 
         total_views = (
             db.session.query(func.count(PageView.id))

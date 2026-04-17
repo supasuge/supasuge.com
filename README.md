@@ -12,15 +12,15 @@ A minimal, secure Flask blog serving Markdown posts with production-ready deploy
 - 🏷️ **Categories and tags** for organizing posts
 - 📊 **Privacy-respecting analytics**
 - 🔑 **SSH key authentication** for admin access
-- 🚀 **Production-ready**: Docker, Nginx, Let's Encrypt SSL
+- 🚀 **Production-ready**: Docker, Caddy (automatic HTTPS)
 
 ## Tech Stack
 
 - **Backend**: Flask (Python 3.12), SQLAlchemy, Gunicorn
 - **Database**: SQLite3
 - **Frontend**: Jinja2 templates, vanilla JS/CSS
-- **Infrastructure**: Docker Compose, Nginx, Redis
-- **Security**: Let's Encrypt SSL/TLS, rate limiting, CSRF protection
+- **Infrastructure**: Docker Compose, Caddy, Redis
+- **Security**: Automatic TLS via Caddy/ACME, rate limiting, CSRF protection
 
 ## Quick Start
 
@@ -51,9 +51,83 @@ python app.py
 - **[Setup Guide](docs/SETUP.md)** - Initial setup and configuration
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment
 - **[Development Guide](docs/DEVELOPMENT.md)** - Local development workflow
-- **[Certificate Management](docs/CERTIFICATES.md)** - SSL/TLS certificates
+- **[Certificate Management](docs/CERTIFICATES.md)** - SSL/TLS certificates (legacy; Caddy handles this automatically now)
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Cleanup Checklist](docs/CLEANUP_CHECKLIST.md)** - Project cleanup tasks
+
+## Deployment (Explicit Steps)
+
+The script-driven deployment workflow is:
+
+```bash
+# 1) From your local machine
+cd /home/supasuge/Documents/Projects/supasuge.com
+```
+
+```bash
+# 2) Stage a clean local archive
+rm -f supa*.tar* supasuge.tar.xz
+tar -cvJf supasuge.tar.xz supasuge.com
+```
+
+```bash
+# 3) Run the deployment CLI (build + upload + backup + promote + fix perms + rebuild/start)
+python3 supasuge_deploy_cli_v2.py remote-deploy \
+  --archive-name supasuge.tar.xz \
+  --extract-root "~/"
+```
+
+The command above will:
+
+1. Upload the archive to the remote host over SSH.
+2. Create a remote DB backup (`.sqlite.xz`) and copy it back to the local host.
+3. Stop the current compose stack.
+4. Promote the new release.
+5. Resolve and run `fixperms.sh` as `appuser`.
+6. Rebuild and start containers with `docker compose build --no-cache` and `docker compose up -d`.
+
+If you need the old staged workflow broken into explicit remote commands, run:
+
+```bash
+# 1) Upload archive manually
+scp -i ~/.ssh/id_ed25519_blog_vps -P 2222 supasuge.tar.xz appuser@supasuge.com:~/
+```
+
+```bash
+# 2) On remote host, extract and run permissions script
+ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
+  'mkdir -p ~/supasuge.com && tar -xJf ~/supasuge.tar.xz -C ~/'
+ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
+  'bash ~/fixperms.sh'
+```
+
+```bash
+# 3) Backup DB, stop stack, then rebuild with no cache
+python3 supasuge_deploy_cli_v2.py remote-deploy \
+  --archive-name supasuge.tar.xz \
+  --db-backup \
+  --local-backup-dir ./deploy-backups \
+  --extract-root "~/"
+
+# or run just the stack part manually
+ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
+  'cd ~/supasuge.com/app && docker compose down'
+ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
+  'cd ~/supasuge.com/app && docker compose build --no-cache && docker compose up -d'
+```
+
+Use the local DB volume helper if you only need to replace SQLite data:
+
+```bash
+./app/scripts/sync-db-volume.sh --yes
+```
+
+Useful checks after deployment:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
+  'cd ~/supasuge.com/app && docker compose ps && docker compose logs --tail=80'
+```
 
 ## Directory Structure
 
@@ -95,8 +169,7 @@ content/
     │   └── hello-world.md
     ├── ctf/                     # Category = "ctf"
     │   ├── writeup-2024.md
-    │   └── challenges/          # Subcategory support
-    │       └── crypto.md
+    │   └── crypto.md
     └── guides/                  # Category = "guides"
         └── getting-started.md
 ```
@@ -112,7 +185,7 @@ content/
 |-----------|----------|---------|
 | `content/articles/hello.md` | `general` | `hello.md` |
 | `content/articles/linux/intro.md` | `linux` | `intro.md` |
-| `content/articles/ctf/challenges/crypto.md` | `ctf` | `challenges/crypto.md` |
+| `content/articles/ctf/crypto.md` | `ctf` | `challenges/crypto.md` |
 
 ## Adding a New Post
 
@@ -410,7 +483,7 @@ gunicorn -c gunicorn.conf.py wsgi:app
 - Use a proper `SECRET_KEY` (generate with `./scripts/gensecrets.sh`)
 - Enable `COOKIE_SECURE=1` (HTTPS)
 - Enable `ENABLE_HSTS=1` (HTTPS)
-- Configure `BEHIND_PROXY=1` if using nginx/Apache
+- Configure `BEHIND_PROXY=1` if behind a reverse proxy (Caddy, nginx, etc.)
 - SQLite3 database (default configuration)
 
 ## Configuration
@@ -605,12 +678,64 @@ This project prioritizes:
 - A CMS with a GUI
 - A framework
 
-This is a **personal blog**. It should be easy to understand in 6 months.
+This is a **personal blog**. It should be easy to understand.
 
-## License
+---
 
-Personal project - all rights reserved (or specify your license).
+## Changelog
 
-## Contributing
+### 2026-03-15: Architecture & Admin Overhaul
 
-This is a personal blog system, but feedback and suggestions are welcome.
+#### Caddy Reverse Proxy (replaces Nginx + Certbot)
+
+- **Replaced Nginx + Certbot** with [Caddy](https://caddyserver.com/) in `docker-compose.yml`
+- Caddy handles TLS certificate provisioning automatically via ACME (no manual cert scripts)
+- Added HTTP/3 (QUIC) support via `443/udp` port mapping
+- **Removed**: `nginx/` config directory, `obtain-certs.sh`, `renew-certs.sh` (moved to `scripts/archive/`)
+- **Updated**: `sitectl.sh` and `deploy-production.sh` for Caddy commands (`caddy-validate`, `caddy-reload`)
+- Caddyfile lives at project root, mounted into the container
+
+#### Content Archive Pipeline (DB as single source of truth)
+
+- **New module**: `content_archive.py` — archives synced `.md` files into `instance/content_archive.tar.gz`
+- After `sync_content()` succeeds, source `.md` files are appended to a tar.gz archive with a JSON manifest (`instance/content_manifest.json`) recording SHA256, original path, timestamp, and file size
+- Source `.md` files are deleted from disk after archival
+- Post editing (`save_post_content`, `save_post_metadata`) is now **DB-only** — no longer requires source files on disk
+- The archive serves as an audit trail / backup; the database is the runtime source of truth
+
+#### SSH Signature Parsing Hardening
+
+- **New function**: `normalize_ssh_signature()` in `auth/ssh_auth.py`
+  - Handles CRLF line endings from Windows/browser paste
+  - Extracts signature block from surrounding text (terminal prompts, filenames)
+  - Strips trailing whitespace per line
+  - Validates structure before passing to `ssh-keygen`
+  - Returns clear error messages for each failure mode
+- Signature verification now uses the normalized output instead of raw paste
+
+#### Bug Fixes
+
+- Fixed `import secret` → `import secrets` in `app.py` (was crashing CSP nonce generation)
+- Replaced all `datetime.utcnow()` calls with `datetime.now(UTC)` across:
+  - `auth/ssh_auth.py`
+  - `blueprints/admin/auth.py`
+  - `models.py` (all column defaults)
+- Post content/metadata editing no longer fails silently when source `.md` is missing
+
+#### UI/UX Polish
+
+- **Admin navigation**: Sticky header with backdrop blur, tighter spacing, smaller font sizes
+- **Flash messages**: Auto-dismiss after 5 seconds with a progress bar animation and smooth slide-out
+- **Login page**: Full redesign with proper centered layout, glass-morphism card, responsive scaling
+- **Tables**: Rounded corners, separate border-spacing, subtler hover states
+- **Buttons**: Cubic-bezier transitions, active press feedback (`scale(0.97)`), hover glow on primary
+- **Cards**: Smoother hover lift with box-shadow, reduced border opacity
+- **Responsive**: Admin nav wraps on mobile, stats grid collapses to single column, table cells resize
+- **Typography**: Tighter letter-spacing on headings, tabular-nums on numeric data
+
+#### Files Removed / Archived
+
+| File | Action | Reason |
+|------|--------|--------|
+| `scripts/obtain-certs.sh` | Moved to `scripts/archive/` | Caddy handles ACME automatically |
+| `scripts/renew-certs.sh` | Moved to `scripts/archive/` | Caddy handles renewal automatically |

@@ -6,6 +6,7 @@ published: true
 date: 2024-12-25T10:30:00Z
 slug: dd-cheatsheet
 ---
+
 # `dd` Command Cheatsheet
 
 The `dd` command is a versatile utility in Unix and Unix-like systems used for converting and copying files. It is especially powerful for tasks involving low-level data operations on drives, partitions, and files. Below is a collection of common and advanced `dd` usage examples.
@@ -22,39 +23,57 @@ The `dd` command is a powerful and versatile tool for Unix-like systems, used fo
 Here are example usages for each of the dd options you listed:
 
 ### Input/Output
-- `if=FILE`: 
+
+- `if=FILE`
+
 ```bash
 dd if=/dev/sda of=disk_image.img
 ```
-Reads from the /dev/sda device as input.
 
-- `of=FILE`:
+Reads from the /dev/sda device as input.
+---
+
+- `of=FILE`
+
+---
+
 ```bash
 dd if=/dev/urandom of=random_data bs=1M count=10
 ```
-  Writes 10MB of random data to a file named random_data.
+
+- Writes 10MB of random data to a file named random_data.
+
+---
 
 ### Block Size
-- `bs=BYTES`:
+
+- `bs=BYTES`
+
 ```bash
 dd if=/dev/zero of=/dev/null bs=1M count=1000
 ```
 Reads and writes in 1MB blocks, 1000 times.
 
-- `ibs=BYTES`:
+- `ibs=BYTES`
+
 ```bash
 dd if=/dev/sda of=backup.img ibs=4k
 ```
-  Reads from the input in 4KB blocks.
 
-- `obs=BYTES`:
+Reads from the input in 4KB blocks.
+
+- `obs=BYTES`
+
 ```bash
 dd if=/dev/urandom of=large_file obs=1M count=100
 ```
-  Writes to the output in 1MB blocks.
+
+Writes to the output in 1MB blocks.
 
 ### Other Options
-- `count=N`:
+
+- `count=N`
+
 ```bash
 dd if=/dev/urandom of=sample bs=1M count=5
 ```

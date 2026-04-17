@@ -2,21 +2,25 @@
 
 from flask import Blueprint, jsonify, current_app
 from sqlalchemy import text
+from extensions import limiter
 from models import db
 
 health_bp = Blueprint("health", __name__)
 
 
 @health_bp.route("/health")
+@limiter.limit("30/minute")
 def health_check():
     try:
         db.session.execute(text("SELECT 1"))
         return jsonify({"status": "healthy", "database": "healthy"}), 200
     except Exception as e:
-        return jsonify({"status": "unhealthy", "database": f"unhealthy: {e}"}), 503
+        current_app.logger.error("Health check failed: %s", e)
+        return jsonify({"status": "unhealthy", "database": "unhealthy"}), 503
 
 
 @health_bp.route("/ready")
+@limiter.limit("30/minute")
 def readiness_check():
     checks = {"database": False, "redis": None}
 

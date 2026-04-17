@@ -11,7 +11,6 @@ need_cmd python3
 need_cmd sed
 
 gen_hex() { python3 -c "import secrets; print(secrets.token_hex($1))"; }
-gen_url() { python3 -c "import secrets; print(secrets.token_urlsafe($1))"; }
 
 # Read key from .env (first match)
 get_kv() {
@@ -74,30 +73,6 @@ ensure_env_file() {
   fi
 }
 
-update_database_url_with_mysql_password() {
-  # If DATABASE_URL exists and contains <MYSQL_PASSWORD>, replace it.
-  # If DATABASE_URL exists and already has a password, we leave it alone unless it references <MYSQL_PASSWORD>.
-  local dburl
-  dburl="$(get_kv "DATABASE_URL" || true)"
-  local mpw
-  mpw="$(get_kv "MYSQL_PASSWORD" || true)"
-
-  if [[ -z "${mpw:-}" ]]; then
-    return 0
-  fi
-
-  if [[ -n "${dburl:-}" ]] && echo "$dburl" | grep -q "<MYSQL_PASSWORD>"; then
-    dburl="$(echo "$dburl" | sed "s|<MYSQL_PASSWORD>|${mpw}|g")"
-    set_kv "DATABASE_URL" "$dburl"
-    return 0
-  fi
-
-  # If DATABASE_URL is empty, create the standard docker-compose URL
-  if [[ -z "${dburl:-}" ]]; then
-    set_kv "DATABASE_URL" "mysql+pymysql://blogapp:${mpw}@db:3306/blog?charset=utf8mb4"
-  fi
-}
-
 main() {
   ensure_env_file
   chmod 600 "$ENV_FILE" || true
@@ -127,17 +102,6 @@ main() {
   if is_missing_or_empty "ANALYTICS_SALT"; then
     set_kv "ANALYTICS_SALT" "$(gen_hex 24)" # 48 hex chars
   fi
-
-  if is_missing_or_empty "MYSQL_PASSWORD"; then
-    # URL-safe is fine, but if you prefer hex-only, swap to gen_hex
-    set_kv "MYSQL_PASSWORD" "$(gen_url 24)"
-  fi
-  if is_missing_or_empty "MYSQL_ROOT_PASSWORD"; then
-    set_kv "MYSQL_ROOT_PASSWORD" "$(gen_url 24)"
-  fi
-
-  # Ensure DATABASE_URL matches the generated MYSQL_PASSWORD if template uses <MYSQL_PASSWORD>
-  update_database_url_with_mysql_password
 
   echo "[gensecrets] updated: $ENV_FILE"
   echo "[gensecrets] permissions: 600"

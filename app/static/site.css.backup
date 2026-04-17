@@ -14,12 +14,6 @@
 * {
   box-sizing: border-box;
 }
-
-/* -----------------------
-   Complex Animated Background System
------------------------- */
-
-/* Layer 1: Base morphing mesh gradient */
 body::before {
   content: "";
   position: fixed;
@@ -332,7 +326,6 @@ body::after {
   }
 }
 
-/* Layer 8: Fibonacci spiral lattice points */
 .fibonacci-lattice {
   position: fixed;
   inset: 0;

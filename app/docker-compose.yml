@@ -1,7 +1,4 @@
 services:
-  # ---------------------------------------------------------------------------
-  # Redis (Rate Limiting & Caching)
-  # ---------------------------------------------------------------------------
   redis:
     image: redis:7.2.5-alpine
     restart: unless-stopped
@@ -10,13 +7,10 @@ services:
       - appnet
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
-  # ---------------------------------------------------------------------------
-  # Flask/Gunicorn Web Application
-  # ---------------------------------------------------------------------------
   web:
     build:
       context: .
@@ -50,22 +44,17 @@ services:
       RATELIMIT_STORAGE_URL: redis://redis:6379/0
       RATELIMIT_DEFAULT: "300/hour"
 
-      CONTENT_DIR: /app/content/articles
-
-      # IMPORTANT: Do NOT auto-run migrations on every container start.
       RUN_MIGRATIONS: "0"
-      RUN_CONTENT_SYNC: "1"
 
       GUNICORN_WORKERS: "2"
       GUNICORN_THREADS: "4"
       LOG_LEVEL: "info"
 
     volumes:
-      - ./content:/app/content:rw
       - ./public:/app/public:rw
       - sqlitedata:/app/instance:rw
 
-      - ./static:/app/static:ro
+      - ./static:/app/static:rw
       - ./templates:/app/templates:ro
       - ./keys:/app/keys:ro
       - ./alembic.ini:/app/alembic.ini:ro
@@ -81,50 +70,21 @@ services:
     tmpfs:
       - /tmp:mode=1777,size=64M
 
-  # ---------------------------------------------------------------------------
-  # Nginx Reverse Proxy
-  # ---------------------------------------------------------------------------
-  nginx:
-    image: nginx:1.27.3-alpine
+  caddy:
+    image: caddy:2-alpine
     restart: unless-stopped
     depends_on:
       - web
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-
-      - ./nginx/dhparam.pem:/etc/nginx/dhparam.pem:ro
-
-      - ./nginx/webroot:/var/www/certbot:ro
-
-      - certbot-etc:/etc/letsencrypt:ro
-      - certbot-var:/var/lib/letsencrypt
-
-      - ./static:/var/www/static:ro
-      - ./public:/var/www/public:ro
-
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
     networks:
       - appnet
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ---------------------------------------------------------------------------
-  # Certbot (SSL Certificate Management)
-  # ---------------------------------------------------------------------------
-  certbot:
-    image: certbot/certbot:v2.11.0
-    volumes:
-      - ./nginx/webroot:/var/www/certbot:rw
-      - certbot-etc:/etc/letsencrypt:rw
-      - certbot-var:/var/lib/letsencrypt:rw
-    profiles:
-      - certbot
 
 networks:
   appnet:
@@ -133,7 +93,7 @@ networks:
 volumes:
   sqlitedata:
     name: supasuge_sqlite_data
-  certbot-etc:
-    name: supasuge_certbot_etc
-  certbot-var:
-    name: supasuge_certbot_var
+  caddy-data:
+    name: supasuge_caddy_data
+  caddy-config:
+    name: supasuge_caddy_config

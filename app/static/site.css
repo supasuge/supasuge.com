@@ -3,478 +3,66 @@
 ------------------------ */
 :root {
   --bg: #0b0d10;
-  --fg: #e7e7e7;
-  --muted: #a0a6b3;
-  --accent: #7dd3fc;
-  --border: #1f2430;
-  --card: rgba(15, 20, 27, 0.85);
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  --fg: #e8eaed;
+  --muted: #9ba3b0;
+  --accent: #67d4f5;
+  --accent-secondary: #c084fc;
+  --border: #1e2533;
+  --card: rgba(10, 14, 20, 0.92);
+  font-family: 'Space Grotesk', Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --motion-slow: 90s;
+  --motion-medium: 45s;
+  --motion-fast: 18s;
+  --content-bg: rgba(10, 14, 20, 0.82);
+  --content-border: rgba(103, 212, 245, 0.18);
+  --lattice-strong: rgba(103, 212, 245, 0.22);
+  --lattice-soft: rgba(103, 212, 245, 0.10);
 }
 
-/* Global image sanity */
 .article-body img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-
 * {
   box-sizing: border-box;
 }
 
-/* -----------------------
-   Complex Animated Background System
------------------------- */
-
-/* Layer 1: Elegant morphing mesh gradient */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 90vw 70vh at 25% 35%, rgba(125, 211, 252, 0.14), transparent 70%),
-    radial-gradient(ellipse 80vw 85vh at 75% 65%, rgba(147, 51, 234, 0.12), transparent 65%),
-    radial-gradient(circle 60vw at 50% 50%, rgba(34, 211, 238, 0.08), transparent 60%),
-    linear-gradient(135deg, rgba(59, 130, 246, 0.08), transparent 60%);
-  animation: mesh-morph 35s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate,
-             mesh-drift 60s ease-in-out infinite;
-  z-index: -6;
-  filter: blur(80px);
-  opacity: 0.9;
+/*
+Header links
+*/
+.headerlink {
+  opacity: 0;
+  margin-left: 0.35rem;
+  transition: opacity 0.15s ease;
 }
 
-@keyframes mesh-morph {
-  0% {
-    opacity: 0.75;
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.05) rotate(1deg);
-  }
-  100% {
-    opacity: 0.8;
-    transform: scale(1.02) rotate(-0.5deg);
-  }
-}
-
-@keyframes mesh-drift {
-  0%, 100% {
-    background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%;
-  }
-  33% {
-    background-position: 25% 20%, 75% 80%, 55% 45%, 15% 25%;
-  }
-  66% {
-    background-position: 40% 50%, 60% 50%, 45% 55%, 25% 40%;
-  }
-}
-
-/* Layer 2: Subtle animated lattice grid */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 99px,
-      rgba(125, 211, 252, 0.08) 99px,
-      rgba(125, 211, 252, 0.08) 100px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 99px,
-      rgba(125, 211, 252, 0.08) 99px,
-      rgba(125, 211, 252, 0.08) 100px
-    );
-  animation: lattice-drift 60s linear infinite;
-  z-index: -4;
-  opacity: 0.6;
-}
-
-@keyframes lattice-drift {
-  from {
-    transform: translate(0, 0);
-  }
-  to {
-    transform: translate(100px, 100px);
-  }
-}
-
-/* Layer 3: Subtle floating particles for depth */
-.particle-layer-1 {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 15% 20%, rgba(125, 211, 252, 0.18) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15) 1.2px, transparent 1.2px),
-    radial-gradient(circle at 45% 60%, rgba(236, 72, 153, 0.14) 1.8px, transparent 1.8px),
-    radial-gradient(circle at 70% 80%, rgba(34, 211, 238, 0.16) 1.5px, transparent 1.5px);
-  background-size: 240px 240px, 280px 280px, 220px 220px, 260px 260px;
-  animation: particles-float-1 40s ease-in-out infinite, particles-fade-1 12s ease-in-out infinite alternate;
-  z-index: -3;
-  pointer-events: none;
+h1:hover .headerlink,
+h2:hover .headerlink,
+h3:hover .headerlink {
   opacity: 0.7;
 }
 
-.particle-layer-2 {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 55% 15%, rgba(125, 211, 252, 0.16) 1.2px, transparent 1.2px),
-    radial-gradient(circle at 20% 45%, rgba(236, 72, 153, 0.14) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 75% 65%, rgba(147, 51, 234, 0.15) 1.4px, transparent 1.4px);
-  background-size: 300px 300px, 250px 250px, 280px 280px;
-  animation: particles-float-2 50s ease-in-out infinite reverse, particles-fade-2 14s ease-in-out infinite alternate;
-  z-index: -3;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-@keyframes particles-float-1 {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(20px, -30px) scale(1.05);
-  }
-  50% {
-    transform: translate(-15px, -50px) scale(0.98);
-  }
-  75% {
-    transform: translate(30px, -20px) scale(1.02);
-  }
-}
-
-@keyframes particles-float-2 {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  30% {
-    transform: translate(-25px, 40px) scale(1.03);
-  }
-  60% {
-    transform: translate(20px, 60px) scale(0.97);
-  }
-  90% {
-    transform: translate(-10px, 30px) scale(1.01);
-  }
-}
-
-@keyframes particles-fade-1 {
-  0%, 100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0.9;
-  }
-}
-
-@keyframes particles-fade-2 {
-  0%, 100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 0.85;
-  }
-}
-
-/* Layer 4: Diagonal cross-hatch lattice with wave motion - Enhanced brightness +50% */
-.lattice-diagonal {
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      45deg,
-      transparent 0px,
-      transparent 112px,
-      rgba(255, 0, 255, 0.10) 112px,
-      rgba(255, 0, 255, 0.10) 113px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      transparent 0px,
-      transparent 112px,
-      rgba(0, 255, 255, 0.10) 112px,
-      rgba(0, 255, 255, 0.10) 113px
-    );
-  animation: lattice-wave 35s cubic-bezier(0.4, 0.0, 0.6, 1) infinite;
-  z-index: -2;
-  pointer-events: none;
-}
-
-@keyframes lattice-wave {
-  0%, 100% {
-    transform: translate(0, 0) skewY(0deg);
-    opacity: 0.5;
-  }
-  25% {
-    transform: translate(-56px, 56px) skewY(0.5deg);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translate(-113px, 113px) skewY(0deg);
-    opacity: 0.6;
-  }
-  75% {
-    transform: translate(-56px, 56px) skewY(-0.5deg);
-    opacity: 0.7;
-  }
-}
-
-/* Layer 5: Elegant pulsing orbs for ambient depth */
-.orb-layer {
-  position: fixed;
-  inset: 0;
-  z-index: -5;
-  pointer-events: none;
-}
-
-.orb-layer::before,
-.orb-layer::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(150px);
-  opacity: 0;
-  animation: orb-pulse 30s cubic-bezier(0.4,0,0.6,1) infinite;
-}
-
-.orb-layer::before {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle,
-    rgba(125,211,252,0.15),
-    rgba(125,211,252,0.06),
-    transparent 75%);
-  top: 15%;
-  left: 8%;
-}
-
-.orb-layer::after {
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle,
-    rgba(147,51,234,0.12),
-    rgba(147,51,234,0.05),
-    transparent 75%);
-  bottom: 10%;
-  right: 10%;
-  animation-delay: 15s;
-}
-
-@keyframes orb-pulse {
-  0%,100% {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.05);
-  }
-}
-
 /* -----------------------
-   Noise Overlay (toned down)
+   Canvas Background
 ------------------------ */
-.noise-overlay {
+#bg-lattice {
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  z-index: -2;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.6;
+  display: block;
 }
 
-/* Layer 7: Subtle hexagonal lattice */
-.hexagonal-lattice {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 0% 0%, rgba(125, 211, 252, 0.04) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 50% 0%, rgba(147, 51, 234, 0.035) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 25% 43.3%, rgba(34, 211, 238, 0.04) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 75% 43.3%, rgba(168, 85, 247, 0.035) 1.5px, transparent 1.5px);
-  background-size: 120px 103.9px;
-  animation: hex-lattice-rotate 90s linear infinite, hex-breathe 16s ease-in-out infinite alternate;
-  z-index: -3;
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-@keyframes hex-lattice-rotate {
-  from {
-    transform: rotate(0deg) scale(1);
-  }
-  to {
-    transform: rotate(360deg) scale(1);
-  }
-}
-
-@keyframes hex-breathe {
-  0%, 100% {
-    opacity: 0.4;
-    filter: brightness(1);
-  }
-  50% {
-    opacity: 0.6;
-    filter: brightness(1.1);
-  }
-}
-
-/* Layer 8: Minimal Fibonacci lattice accents */
-.fibonacci-lattice {
-  position: fixed;
-  inset: 0;
-  z-index: -4;
-  pointer-events: none;
-  opacity: 0.4;
-}
-
-.fibonacci-lattice::before,
-.fibonacci-lattice::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.08) 1.2px, transparent 1.2px),
-    radial-gradient(circle at 61.8% 50%, rgba(147, 51, 234, 0.07) 1.4px, transparent 1.4px),
-    radial-gradient(circle at 38.2% 50%, rgba(236, 72, 153, 0.07) 1.4px, transparent 1.4px),
-    radial-gradient(circle at 50% 61.8%, rgba(34, 211, 238, 0.06) 1.3px, transparent 1.3px);
-  background-size: 420px 420px;
-  animation: fibonacci-spin 100s linear infinite;
-}
-
-.fibonacci-lattice::after {
-  animation: fibonacci-spin 130s linear infinite reverse;
-  opacity: 0.5;
-}
-
-@keyframes fibonacci-spin {
-  from {
-    transform: rotate(0deg) scale(1.15);
-  }
-  to {
-    transform: rotate(360deg) scale(1.15);
-  }
-}
-
-/* Layer 9: Soft ambient gradient cells */
-.voronoi-cells {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(ellipse 350px 450px at 20% 25%, rgba(125, 211, 252, 0.05), transparent 55%),
-    radial-gradient(ellipse 400px 350px at 80% 35%, rgba(147, 51, 234, 0.04), transparent 55%),
-    radial-gradient(ellipse 320px 420px at 50% 75%, rgba(236, 72, 153, 0.04), transparent 55%);
-  animation: voronoi-morph 70s ease-in-out infinite alternate;
-  z-index: -5;
-  pointer-events: none;
-  filter: blur(50px);
-  opacity: 0.5;
-}
-
-@keyframes voronoi-morph {
-  0%, 100% {
-    background-size: 100% 100%;
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    background-size: 110% 110%;
-    transform: scale(1.03) rotate(0.5deg);
-  }
-}
-
-/* Layer 10: Delicate moiré pattern accent */
-.moire-interference {
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      35deg,
-      transparent 0px,
-      transparent 59px,
-      rgba(125, 211, 252, 0.025) 59px,
-      rgba(125, 211, 252, 0.025) 60px
-    ),
-    repeating-linear-gradient(
-      145deg,
-      transparent 0px,
-      transparent 59px,
-      rgba(147, 51, 234, 0.02) 59px,
-      rgba(147, 51, 234, 0.02) 60px
-    );
-  animation: moire-shift 90s linear infinite, moire-pulse 20s ease-in-out infinite alternate;
-  z-index: -4;
-  pointer-events: none;
-  opacity: 0.4;
-}
-
-@keyframes moire-shift {
-  from {
-    transform: rotate(0deg) scale(1.4);
-  }
-  to {
-    transform: rotate(360deg) scale(1.4);
-  }
-}
-
-@keyframes moire-pulse {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-/* Layer 11: Refined lattice accent points */
-.reciprocal-lattice {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.06) 1.8px, transparent 1.8px),
-    radial-gradient(circle at 33.3% 33.3%, rgba(147, 51, 234, 0.05) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 66.7% 33.3%, rgba(236, 72, 153, 0.05) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 33.3% 66.7%, rgba(34, 211, 238, 0.05) 1.5px, transparent 1.5px);
-  background-size: 180px 180px;
-  animation: reciprocal-oscillate 70s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
-  z-index: -4;
-  pointer-events: none;
-  opacity: 0.45;
-}
-
-@keyframes reciprocal-oscillate {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.35;
-  }
-  50% {
-    transform: translate(-45px, 45px) scale(1.03);
-    opacity: 0.55;
-  }
-}
-
-@keyframes noise-shift {
-  0%, 100% {
-    transform: translate(0, 0);
-  }
-  10% {
-    transform: translate(-2%, 2%)
-  }
-  25% {
-    transform: translate(2%, -2%);
-  }
-  50% {
-    transform: translate(-2%, 2%);
-  }
-  75% {
-    transform: translate(2%, 2%);
-  }
+.site-header,
+main,
+.site-footer {
+  position: relative;
+  z-index: 1;
 }
 
 /* -----------------------
@@ -537,21 +125,37 @@ body {
   margin-left: 16px;
   color: var(--muted);
   text-decoration: none;
+  transition: color 0.2s ease;
+  position: relative;
 }
 
 .nav a:hover {
   color: var(--accent);
 }
 
+.nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s ease;
+}
+
+.nav a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
 /* -----------------------
    Articles
 ------------------------ */
 .article {
-  background: linear-gradient(
-    180deg,
-    var(--card),
-    var(--card-strong)
-  );
+  background: rgba(8, 11, 16, 0.95);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 36px;
@@ -562,6 +166,7 @@ body {
 
 .article-body {
   max-width: 72ch;
+  margin: 0 auto;
 }
 
 .article-body h1,
@@ -570,17 +175,139 @@ body {
   margin-top: 2rem;
 }
 
+/* ---- Code blocks ---- */
+.article-body .codehilite,
 .article-body pre {
-  background: #0f141b;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  background: #0d1117;
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  border-radius: 10px;
   overflow-x: auto;
-  font-size: 0.95rem;
-  line-height: 1.55;
+  margin: 1.35rem 0;
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.03);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.65;
 }
 
+.article-body .codehilite pre {
+  margin: 0;
+  padding: 18px 22px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: inherit;
+}
+
+.article-body pre:not(.codehilite pre) {
+  padding: 18px 22px;
+}
+
+/* Inline code */
 .article-body code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: rgba(125, 211, 252, 0.09);
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  color: #93ddff;
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+/* Don't double-style code inside pre blocks */
+.article-body pre code,
+.article-body .codehilite code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* ---- Markdown tables ---- */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.875rem;
+  display: block;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
+}
+
+.article-body table thead {
+  background: rgba(125, 211, 252, 0.07);
+}
+
+.article-body table th {
+  padding: 11px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1px solid rgba(125, 211, 252, 0.22);
+  white-space: nowrap;
+}
+
+.article-body table td {
+  padding: 9px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--fg);
+  vertical-align: top;
+}
+
+.article-body table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.article-body table tbody tr:hover td {
+  background: rgba(125, 211, 252, 0.04);
+}
+
+/* code inside tables */
+.article-body table code {
+  font-size: 0.8rem;
+}
+
+/* -----------------------
+   Legal Pages
+------------------------ */
+.legal-doc {
+  max-width: 860px;
+}
+
+.legal-doc h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.legal-doc h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+  color: var(--accent);
+}
+
+.legal-doc h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.legal-doc ul,
+.legal-doc ol {
+  padding-left: 1.35rem;
+}
+
+.legal-doc li + li {
+  margin-top: 0.35rem;
+}
+
+.legal-doc code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
   background: #0f141b;
   padding: 2px 6px;
   border-radius: 6px;
@@ -592,11 +319,33 @@ body {
 .list {
   list-style: none;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .list li {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.list li:hover {
+  border-color: rgba(125, 211, 252, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.list li a {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.list li .muted {
+  font-size: 0.95rem;
+  margin-top: 6px;
+  line-height: 1.55;
 }
 
 /* -----------------------
@@ -612,7 +361,6 @@ body {
   margin-right: 6px;
 }
 
-/* Tags Grid */
 .tags-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -663,7 +411,7 @@ body {
   font-weight: 600;
   color: var(--fg);
   margin-bottom: 8px;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.5px;
 }
 
@@ -713,7 +461,42 @@ body {
 .site-footer {
   border-top: 1px solid var(--border);
   margin-top: 64px;
-  padding-top: 24px;
+  padding: 32px 0;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-text {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--fg);
+  opacity: 0.85;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 /* -----------------------
@@ -771,8 +554,8 @@ a:hover {
   display: block;
   background: linear-gradient(
     135deg,
-    rgba(15, 20, 27, 0.95),
-    rgba(25, 30, 40, 0.9)
+    rgba(8, 11, 16, 0.96),
+    rgba(14, 18, 26, 0.94)
   );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -909,7 +692,10 @@ a:hover {
 
 .hero {
   margin-bottom: 48px;
-  padding: 48px 0;
+  padding: 36px 32px;
+  background: rgba(8, 11, 16, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 14px;
   animation: hero-entrance 0.8s ease-out;
 }
 
@@ -925,7 +711,7 @@ a:hover {
 }
 
 .whoami {
-  background: linear-gradient(135deg, rgba(15, 20, 27, 0.95), rgba(25, 30, 40, 0.9));
+  background: linear-gradient(135deg, rgba(8, 11, 16, 0.96), rgba(14, 18, 26, 0.94));
   backdrop-filter: blur(12px);
   border: 1px solid rgba(125, 211, 252, 0.2);
   padding: 24px;
@@ -940,7 +726,7 @@ a:hover {
 }
 
 .login-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.05);
@@ -984,7 +770,7 @@ a:hover {
   border: 1px solid rgba(125, 211, 252, 0.5);
   padding: 1rem;
   padding-right: 4rem;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   color: #7dd3fc;
   word-break: break-all;
@@ -1038,7 +824,7 @@ a:hover {
   background: rgba(125, 211, 252, 0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 3px;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   color: #7dd3fc;
   font-size: 12px;
   word-break: break-all;
@@ -1074,7 +860,7 @@ textarea {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(125, 211, 252, 0.5);
   color: #fff;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   border-radius: 4px;
   line-height: 1.5;
@@ -1109,13 +895,99 @@ textarea:focus {
 .flash {
   padding: 1rem;
   margin-bottom: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-size: 0.95rem;
 }
 
 .flash-error {
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
   color: #fca5a5;
+}
+
+.flash-success {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #86efac;
+}
+
+.flash-info {
+  background: rgba(125, 211, 252, 0.15);
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  color: var(--accent);
+}
+
+/* -----------------------
+   Mailing List
+------------------------ */
+.mailing-list {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.mailing-list-title {
+  margin: 0 0 6px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent), #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mailing-list-desc {
+  margin: 0 0 14px 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.mailing-list-form {
+  display: flex;
+  gap: 8px;
+}
+
+.mailing-list-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(15, 20, 27, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.mailing-list-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.15);
+}
+
+.mailing-list-input::placeholder {
+  color: rgba(160, 166, 179, 0.6);
+}
+
+.mailing-list-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.2), rgba(147, 51, 234, 0.2));
+  border: 1px solid rgba(125, 211, 252, 0.4);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mailing-list-btn:hover {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.35), rgba(147, 51, 234, 0.35));
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
 /* -----------------------
@@ -1175,6 +1047,18 @@ textarea:focus {
   textarea {
     font-size: 12px;
     min-height: 180px;
+  }
+
+  .footer-links {
+    gap: 12px;
+  }
+
+  .mailing-list-form {
+    flex-direction: column;
+  }
+
+  .mailing-list-btn {
+    width: 100%;
   }
 }
 

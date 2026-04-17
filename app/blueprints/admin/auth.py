@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from flask import (
     current_app,
@@ -17,7 +17,7 @@ from flask import (
 from sqlalchemy import func
 
 from blueprints.admin import admin_bp
-from blueprints.public import limiter
+from extensions import limiter
 from auth import (
     create_admin_session,
     generate_challenge,
@@ -25,16 +25,14 @@ from auth import (
     verify_signature,
 )
 from auth.decorators import require_admin
-from models import PageView, db
-
-_challenge_cache: dict[str, datetime] = {}
+from models import AuthChallenge, PageView, db
 
 
 def _cleanup_expired_challenges() -> None:
-    now = datetime.utcnow()
-    expired = [c for c, exp in _challenge_cache.items() if exp < now]
-    for c in expired:
-        del _challenge_cache[c]
+    """Remove expired challenges from the database (participates in caller's transaction)."""
+    db.session.query(AuthChallenge).filter(
+        AuthChallenge.expires_at < datetime.now(UTC)
+    ).delete()
 
 
 @admin_bp.route("/login", methods=["GET", "POST"])
@@ -44,10 +42,12 @@ def login():
         challenge = generate_challenge()
 
         expiry_seconds = int(current_app.config.get("ADMIN_CHALLENGE_EXPIRY", 300))
-        expires_at = datetime.utcnow() + timedelta(seconds=expiry_seconds)
+        expires_at = datetime.now(UTC) + timedelta(seconds=expiry_seconds)
 
         _cleanup_expired_challenges()
-        _challenge_cache[challenge] = expires_at
+
+        db.session.add(AuthChallenge(challenge=challenge, expires_at=expires_at))
+        db.session.commit()
 
         return render_template(
             "admin/login.html",
@@ -64,12 +64,18 @@ def login():
 
     _cleanup_expired_challenges()
 
-    if challenge not in _challenge_cache:
+    # Look up challenge in DB (must exist, not expired, not already used)
+    ch = db.session.query(AuthChallenge).filter_by(
+        challenge=challenge, used=False
+    ).filter(AuthChallenge.expires_at > datetime.now(UTC)).one_or_none()
+
+    if not ch:
         flash("Challenge expired or invalid", "error")
         return redirect(url_for("admin.login"))
 
-    # single-use challenge
-    del _challenge_cache[challenge]
+    # Mark as used (single-use)
+    ch.used = True
+    db.session.commit()
 
     ok, fingerprint = verify_signature(
         challenge=challenge,
@@ -103,7 +109,7 @@ def logout():
         revoke_session(token)
 
     response = make_response(redirect(url_for("public.index")))
-    response.set_cookie("admin_session", "", expires=0)
+    response.set_cookie("admin_session", "", expires=0, httponly=True, secure=True, samesite="Strict")
     flash("Logged out", "info")
     return response
 

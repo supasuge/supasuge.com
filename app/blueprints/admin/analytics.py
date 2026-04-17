@@ -1,23 +1,20 @@
 from __future__ import annotations
-from datetime import datetime
-from blueprints.admin  import admin_bp
+
+from flask import current_app, flash, redirect, render_template, request, url_for
+
 from auth.decorators import require_admin
+from blueprints.admin import admin_bp
 from models import Post, db
-from services.analytics_service import (
-    get_analytics_summary,
-    get_post_analytics
-)
-from flask import request, render_template, flash, redirect, url_for
+from services.analytics_service import get_analytics_summary, get_post_analytics
 
 
 @admin_bp.route("/analytics")
 @require_admin
 def analytics_overview():
     try:
-        days = int(request.args.get("days", 30))
+        days = max(1, min(int(request.args.get("days", 30)), 365))
         summary = get_analytics_summary(days=days)
     except Exception as e:
-        from flask import current_app
         current_app.logger.error(f"Error fetching analytics summary: {e}")
         flash("Error loading analytics data. Please check the database.", "error")
         summary = {
@@ -43,7 +40,6 @@ def analytics_posts():
     try:
         posts = db.session.query(Post).order_by(Post.title.asc()).all()
     except Exception as e:
-        from flask import current_app
         current_app.logger.error(f"Error fetching posts: {e}")
         flash("Error loading posts. Please check the database.", "error")
         posts = []
@@ -66,7 +62,6 @@ def analytics_post_detail(post_id: int):
 
         stats = get_post_analytics(post_id=post.id)
     except Exception as e:
-        from flask import current_app
         current_app.logger.error(f"Error fetching post analytics for post {post_id}: {e}")
         flash("Error loading post analytics. Please check the database.", "error")
         return redirect(url_for("admin.analytics_posts"))

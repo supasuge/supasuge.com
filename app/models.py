@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
+
+def _utcnow():
+    return datetime.now(UTC)
 
 db = SQLAlchemy()
 
@@ -15,13 +19,10 @@ post_tags = db.Table(
 
 class Category(db.Model):
     __tablename__ = "categories"
-
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(128), unique=True, nullable=False, index=True)
     name = db.Column(db.String(128), nullable=False)
-
     posts = relationship("Post", back_populates="category")
-
     def __repr__(self) -> str:
         return f"<Category {self.slug}>"
 
@@ -32,7 +33,6 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(128), unique=True, nullable=False, index=True)
     name = db.Column(db.String(128), nullable=False)
-
     posts = relationship("Post", secondary=post_tags, back_populates="tags")
 
     def __repr__(self) -> str:
@@ -50,12 +50,12 @@ class Post(db.Model):
     content_html = db.Column(db.Text, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False, index=True)
     category = relationship("Category", back_populates="posts")
-    source_path = db.Column(db.String(1024), unique=True, nullable=False, index=True)
-    subpath = db.Column(db.String(1024), default="")
+    source_path = db.Column(db.String(1024), nullable=False, unique=True, index=True)
+    subpath = db.Column(db.String(1024), nullable=False, default="")
     content_sha256 = db.Column(db.String(64), nullable=False, index=True)
     published = db.Column(db.Boolean, default=True, index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=_utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     tags = relationship("Tag", secondary=post_tags, back_populates="posts")
     pageviews = relationship("PageView", back_populates="post")
 
@@ -70,8 +70,8 @@ class Visitor(db.Model):
     visitor_hash = db.Column(db.String(64), unique=True, nullable=False, index=True)
     ip_anon = db.Column(db.String(45), index=True)
     user_agent = db.Column(db.String(512))
-    first_seen = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+    first_seen = db.Column(db.DateTime, default=_utcnow, index=True)
+    last_seen = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow, index=True)
 
     sessions = relationship("AnalyticsSession", back_populates="visitor")
     pageviews = relationship("PageView", back_populates="visitor")
@@ -88,8 +88,8 @@ class AnalyticsSession(db.Model):
     visitor_id = db.Column(db.Integer, db.ForeignKey("visitors.id"), nullable=False, index=True)
     visitor = relationship("Visitor", back_populates="sessions")
 
-    started_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+    started_at = db.Column(db.DateTime, default=_utcnow, index=True)
+    last_activity = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow, index=True)
     ended_at = db.Column(db.DateTime, index=True)
 
     referrer = db.Column(db.String(1024))
@@ -116,7 +116,7 @@ class PageView(db.Model):
     post = relationship("Post", back_populates="pageviews")
 
     path = db.Column(db.String(512), nullable=False, index=True)
-    viewed_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    viewed_at = db.Column(db.DateTime, default=_utcnow, index=True)
     time_on_page = db.Column(db.Integer)
 
     user_agent = db.Column(db.String(512))
@@ -133,6 +133,16 @@ class PageView(db.Model):
         return f"<PageView {self.path} at {self.viewed_at}>"
 
 
+class AuthChallenge(db.Model):
+    """Stores authentication challenges in DB so they work across Gunicorn workers."""
+    __tablename__ = "auth_challenges"
+
+    id = db.Column(db.Integer, primary_key=True)
+    challenge = db.Column(db.String(256), unique=True, nullable=False, index=True)
+    expires_at = db.Column(db.DateTime, nullable=False, index=True)
+    used = db.Column(db.Boolean, default=False)
+
+
 class AdminSession(db.Model):
     """Admin authentication sessions via SSH key signatures."""
     __tablename__ = "admin_sessions"
@@ -143,12 +153,26 @@ class AdminSession(db.Model):
     # should be SSH key fingerprint, but if it ain't broke don't fix it...
     key_fingerprint = db.Column("gpg_fingerprint", db.String(128), nullable=False)
     challenge = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=_utcnow, index=True)
     expires_at = db.Column(db.DateTime, nullable=False, index=True)
-    last_activity = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_activity = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
     ip_address = db.Column(db.String(45))
     user_agent = db.Column(db.String(512))
     revoked = db.Column(db.Boolean, default=False, index=True)
 
     def __repr__(self) -> str:
         return f"<AdminSession {self.session_token[:8]} expires {self.expires_at}>"
+
+
+class MailingListSubscriber(db.Model):
+    """Email subscribers for the weekly threat intel mailing list."""
+    __tablename__ = "mailing_list_subscribers"
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(320), unique=True, nullable=False, index=True)
+    subscribed_at = db.Column(db.DateTime, default=_utcnow)
+    confirmed = db.Column(db.Boolean, default=False, index=True)
+    unsubscribed = db.Column(db.Boolean, default=False, index=True)
+
+    def __repr__(self) -> str:
+        return f"<MailingListSubscriber {self.email}>"

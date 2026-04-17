@@ -16,7 +16,7 @@
     </div>
 
     <div class="article-body">
-      {{ post.content_html|safe }}
+      {{ post.content_html|resolve_images|safe }}
     </div>
   </article>
 {% endblock %}
