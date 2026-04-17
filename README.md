@@ -1,18 +1,18 @@
-# supasuge.com
+# vps.com
 
 A minimal, secure Flask blog serving Markdown posts with production-ready deployment.
 
 ## Features
 
-- 📝 **Markdown-based content** with YAML frontmatter
-- 🗄️ **SQLite3 database** (simple, file-based, no separate DB server needed)
-- 🔄 **Automatic content syncing** from filesystem to database
-- 🎨 **Syntax highlighting** via Pygments
-- 🔒 **Secure by default**: XSS protection, CSP headers, HTTPS-only, HSTS
-- 🏷️ **Categories and tags** for organizing posts
-- 📊 **Privacy-respecting analytics**
-- 🔑 **SSH key authentication** for admin access
-- 🚀 **Production-ready**: Docker, Caddy (automatic HTTPS)
+- **Markdown-based content** with YAML frontmatter
+- **SQLite3 database** (simple, file-based, no separate DB server needed)
+- **Automatic content syncing** from filesystem to database
+- **Syntax highlighting** via Pygments
+- **Secure by default**: XSS protection, CSP headers, HTTPS-only, HSTS
+- **Categories and tags** for organizing posts in a manner similar to Hugo and other simple static site generators.
+- **Privacy-respecting analytics**
+- **SSH key challenge/response authentication** for password-less admin access
+- **Production-ready**: Docker, Caddy (automatic HTTPS)
 
 ## Tech Stack
 
@@ -27,7 +27,7 @@ A minimal, secure Flask blog serving Markdown posts with production-ready deploy
 ```bash
 # Clone repository
 git clone <repo-url>
-cd supasuge.com/app
+cd vps.com/app
 
 # Configure environment
 cp .env.example .env
@@ -61,13 +61,13 @@ The script-driven deployment workflow is:
 
 ```bash
 # 1) From your local machine
-cd /home/supasuge/Documents/Projects/supasuge.com
+cd /home/supasuge/Documents/Projects/vps.com
 ```
 
 ```bash
 # 2) Stage a clean local archive
 rm -f supa*.tar* supasuge.tar.xz
-tar -cvJf supasuge.tar.xz supasuge.com
+tar -cvJf supasuge.tar.xz vps.com
 ```
 
 ```bash
@@ -90,16 +90,17 @@ If you need the old staged workflow broken into explicit remote commands, run:
 
 ```bash
 # 1) Upload archive manually
-scp -i ~/.ssh/id_ed25519_blog_vps -P 2222 supasuge.tar.xz appuser@supasuge.com:~/
+scp -i ~/.ssh/id_ed25519 -P 2222 supasuge.tar.xz appuser@vps.com:~/
 ```
 
 ```bash
 # 2) On remote host, extract and run permissions script
-ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
-  'mkdir -p ~/supasuge.com && tar -xJf ~/supasuge.tar.xz -C ~/'
-ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
-  'bash ~/fixperms.sh'
+ssh -i ~/.ssh/id_ed25519 -p 2222 appuser@vps.com \
+  'mkdir -p ~/vps.com && tar -xJf ~/vps.tar.xz -C ~/'
+ssh -i ~/.ssh/id_ed25519 -p 2222 appuser@vps.com \
+  'sudo chown -R $USER:$USER vps.com && sudo chown -R 10001:10001 vps.com/app/content && sudo chown -R 775 vps.com/app/content'
 ```
+Obviously, replace `vps.com` and `vps.tar.xz` with your own directory archive to speed up upload time.
 
 ```bash
 # 3) Backup DB, stop stack, then rebuild with no cache
@@ -110,10 +111,10 @@ python3 supasuge_deploy_cli_v2.py remote-deploy \
   --extract-root "~/"
 
 # or run just the stack part manually
-ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
-  'cd ~/supasuge.com/app && docker compose down'
-ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
-  'cd ~/supasuge.com/app && docker compose build --no-cache && docker compose up -d'
+ssh -i ~/.ssh/id_ed25519 -p 2222 appuser@vps.com \
+  'cd ~/vps.com/app && docker compose down'
+ssh -i ~/.ssh/id_ed25519 -p 2222 appuser@vps.com \
+  'cd ~/vps.com/app && docker compose build --no-cache && docker compose up -d'
 ```
 
 Use the local DB volume helper if you only need to replace SQLite data:
@@ -125,8 +126,8 @@ Use the local DB volume helper if you only need to replace SQLite data:
 Useful checks after deployment:
 
 ```bash
-ssh -i ~/.ssh/id_ed25519_blog_vps -p 2222 appuser@supasuge.com \
-  'cd ~/supasuge.com/app && docker compose ps && docker compose logs --tail=80'
+ssh -i ~/.ssh/id_ed25519 -p 2222 appuser@vps.com \
+  'cd ~/vps.com/app && docker compose ps && docker compose logs --tail=80'
 ```
 
 ## Directory Structure
@@ -495,7 +496,7 @@ All configuration is via **environment variables** (see `.env` or `config.py`).
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SITE_NAME` | `Evan Pardon's Portfolio` | Site name (in templates) |
-| `SITE_URL` | `https://supasuge.com` | Canonical URL |
+| `SITE_URL` | `https://vps.com` | Canonical URL |
 | `SECRET_KEY` | (required) | Flask secret key (use `./scripts/gensecrets.sh`) |
 | `DATABASE_URL` | `sqlite:///instance/blog.db` | SQLAlchemy connection string (SQLite3) |
 | `CONTENT_DIR` | `content/articles` | Directory containing Markdown files |
