@@ -634,12 +634,8 @@ chmod 644 file.txt
 chmod u+x script.sh
 ```
 
-!!! warning
-    Be careful with `chmod 777` - it grants full access to everyone!
 
-## Summary
-
-Understanding permissions is crucial for Linux security...
+> Be careful with `chmod 777` - it grants full access to everyone!
 
 ## Troubleshooting
 
